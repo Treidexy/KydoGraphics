@@ -11,10 +11,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Context.cpp" />
     <ClCompile Include="src\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Kydo.h" />
+    <ClInclude Include="include\Kydo\Context.h" />
     <ClInclude Include="include\Kydo\Core.h" />
     <ClInclude Include="include\Kydo\Window.h" />
   </ItemGroup>

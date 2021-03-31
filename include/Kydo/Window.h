@@ -1,5 +1,6 @@
 #pragma once
 
+#define NOMINMAX
 #include <Windows.h>
 #include "Kydo/Core.h"
 
@@ -22,6 +23,8 @@ namespace Kydo
 		COLORREF *pixels;
 
 		bool alive = true, destroyed = false;
+		
+		friend class Context;
 	public:
 		Window(PCWSTR title, LONG width = 1280, LONG height = 720, PCWSTR className = L"MyClass", HMODULE = NULL);
 		~Window();
@@ -37,3 +40,5 @@ namespace Kydo
 		static LRESULT CALLBACK KydoWinProc(__in HWND wnd, __in UINT msg, __in WPARAM wParam, __in LPARAM lParam);
 	};
 }
+
+#include "Kydo/Context.h"

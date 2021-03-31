@@ -18,6 +18,9 @@
     <ClCompile Include="src\Window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Context.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Kydo\Window.h">
@@ -27,6 +30,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Kydo\Core.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Kydo\Context.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
