@@ -9,3 +9,5 @@
 #endif
 
 #define KYDO_PROPERTY(...) __declspec(property(##__VA_ARGS__))
+
+#include <cassert>
