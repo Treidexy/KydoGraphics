@@ -1,7 +1,5 @@
 #include "Kydo/Window.h"
 
-#include "Kydo/Context.h"
-
 namespace Kydo
 {
 	Window *Window::Instance;
@@ -65,8 +63,6 @@ namespace Kydo
 		bmpDc = CreateCompatibleDC(dc);
 		assert(bmpDc);
 		SelectObject(bmpDc, bmp);
-
-		context = new Context(this);
 	}
 
 	Window::~Window()
@@ -93,7 +89,6 @@ namespace Kydo
 	{
 		if (!destroyed)
 		{
-			delete context;
 			ReleaseDC(handle, dc);
 			DestroyWindow(handle);
 			UnregisterClassW(className, module);

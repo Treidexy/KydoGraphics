@@ -6,13 +6,10 @@
 
 namespace Kydo
 {
-	class KYDO_API Context;
-
 	class KYDO_API Window
 	{
 	private:
 		static Window *Instance;
-		Context *context;
 
 		HDC dc, bmpDc;
 		MSG msg {};
@@ -26,8 +23,6 @@ namespace Kydo
 		COLORREF *pixels;
 
 		bool alive = true, destroyed = false;
-		
-		friend class Context;
 	public:
 		Window(PCWSTR title, LONG width = 1280, LONG height = 720, PCWSTR className = L"MyClass", HMODULE = NULL);
 		~Window();

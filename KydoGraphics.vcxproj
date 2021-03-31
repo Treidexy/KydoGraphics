@@ -11,14 +11,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Kydo\Context.cpp" />
     <ClCompile Include="src\Kydo\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Kydo.h" />
-    <ClInclude Include="src\Kydo\Context.h" />
     <ClInclude Include="include\Kydo\Core.h" />
-    <ClInclude Include="src\Kydo\Program.h" />
     <ClInclude Include="include\Kydo\Window.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
