@@ -1,26 +1,20 @@
 #pragma once
 
-#include <CL/cl2.hpp>
+#include <string>
+#include <memory>
+#include <string_view>
 #include "Kydo/Window.h"
 
 namespace Kydo
 {
 	class KYDO_API Renderer
 	{
-	private:
-		Window *wnd;
-
-		cl::Platform platform;
-		cl::Device device;
-		cl::Context context;
-		cl::CommandQueue q;
-		cl::Buffer pixelMem;
-		cl::Program prog;
-		cl::Kernel kernel;
-
-		std::string src;
+	protected:
+		Renderer() = default;
 	public:
-		Renderer(Window &, const std::string &src = {});
-		~Renderer();
+		virtual ~Renderer() = default;
+		virtual bool IsAlive() = NULL;
+
+		static std::unique_ptr<Renderer> Create(Window &, std::string_view src);
 	};
 }
