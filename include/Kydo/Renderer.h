@@ -14,10 +14,13 @@ namespace Kydo
 		cl::Device device;
 		cl::Context context;
 		cl::CommandQueue q;
-		cl::Memory pixelMem;
+		cl::Buffer pixelMem;
 		cl::Program prog;
 		cl::Kernel kernel;
+
+		std::string src;
 	public:
-		
+		Renderer(Window &, const std::string &src = {});
+		~Renderer();
 	};
 }

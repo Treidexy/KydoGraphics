@@ -5,6 +5,9 @@ int main()
 {
 	Kydo::Window wnd(L"Kydo Test");
 	wnd.Show();
+
+	Kydo::Renderer renderer(wnd);
+
 	while (wnd.IsAlive())
 		wnd.Update();
 	wnd.Destroy();

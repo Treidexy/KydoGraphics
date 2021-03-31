@@ -111,4 +111,8 @@ namespace Kydo
 
 	LONG Window::GetHeight()
 	{ return height; }
+
+
+	COLORREF *Window::GetPixels()
+	{ return pixels; }
 }

@@ -14,9 +14,11 @@
     <ClInclude Include="include\Kydo.h" />
     <ClInclude Include="include\Kydo\Core.h" />
     <ClInclude Include="include\Kydo\Renderer.h" />
+    <ClInclude Include="include\Kydo\Triangle.h" />
     <ClInclude Include="include\Kydo\Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Kydo\Renderer.cpp" />
     <ClCompile Include="src\Kydo\Window.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
