@@ -99,4 +99,16 @@ namespace Kydo
 
 	bool Window::IsAlive()
 	{ return alive; }
+
+	LONG Window::GetX()
+	{ return x; }
+
+	LONG Window::GetY()
+	{ return y; }
+
+	LONG Window::GetWidth()
+	{ return width; }
+
+	LONG Window::GetHeight()
+	{ return height; }
 }

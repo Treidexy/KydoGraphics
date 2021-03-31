@@ -34,6 +34,19 @@ namespace Kydo
 		void Destroy();
 
 		bool IsAlive();
+		LONG GetX();
+		LONG GetY();
+		LONG GetWidth();
+		LONG GetHeight();
+
+		COLORREF *GetPixels();
+
+		KYDO_PROPERTY(get = GetX) LONG X;
+		KYDO_PROPERTY(get = GetY) LONG Y;
+		KYDO_PROPERTY(get = GetWidth) LONG Width;
+		KYDO_PROPERTY(get = GetHeight) LONG Height;
+
+		KYDO_PROPERTY(get = GetPixels) COLORREF *Pixels;
 
 		static LRESULT CALLBACK KydoWinProc(__in HWND wnd, __in UINT msg, __in WPARAM wParam, __in LPARAM lParam);
 	};
