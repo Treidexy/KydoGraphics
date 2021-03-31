@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31025.194
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KydoGraphics", "KydoGraphics.vcxproj", "{D4672C69-62A4-4296-B4EA-D0E7735C289A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test\Test.vcxproj", "{6484F004-06F6-4F1F-91BA-E4866CABE4FC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D4672C69-62A4-4296-B4EA-D0E7735C289A} = {D4672C69-62A4-4296-B4EA-D0E7735C289A}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D4672C69-62A4-4296-B4EA-D0E7735C289A}.Debug|x64.ActiveCfg = Debug|x64
+		{D4672C69-62A4-4296-B4EA-D0E7735C289A}.Debug|x64.Build.0 = Debug|x64
+		{D4672C69-62A4-4296-B4EA-D0E7735C289A}.Release|x64.ActiveCfg = Release|x64
+		{D4672C69-62A4-4296-B4EA-D0E7735C289A}.Release|x64.Build.0 = Release|x64
+		{6484F004-06F6-4F1F-91BA-E4866CABE4FC}.Debug|x64.ActiveCfg = Debug|x64
+		{6484F004-06F6-4F1F-91BA-E4866CABE4FC}.Debug|x64.Build.0 = Debug|x64
+		{6484F004-06F6-4F1F-91BA-E4866CABE4FC}.Release|x64.ActiveCfg = Release|x64
+		{6484F004-06F6-4F1F-91BA-E4866CABE4FC}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1DF07F70-948E-423A-8E19-D2F6C406D04C}
+	EndGlobalSection
+EndGlobal
