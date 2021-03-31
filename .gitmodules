@@ -1,0 +1,6 @@
+[submodule "vendor/OpenCL-Headers"]
+	path = vendor/OpenCL-Headers
+	url = https://github.com/KhronosGroup/OpenCL-Headers.git
+[submodule "vendor/OpenCL-CLHPP"]
+	path = vendor/OpenCL-CLHPP
+	url = https://github.com/KhronosGroup/OpenCL-CLHPP.git
