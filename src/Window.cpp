@@ -2,8 +2,8 @@
 
 namespace Kydo
 {
-	Window::Window(PCWSTR title, LONG width, LONG height, PCWSTR className, HMODULE module)
-		: module(module), title(title), className(className), rect { 0, 0, width, height }
+	Window::Window(PCWSTR title, LONG width, LONG height, PCWSTR className, HMODULE mod)
+		: module(mod), title(title), className(className), rect { 0, 0, width, height }
 	{
 		if (!module)
 			module = GetModuleHandleW(NULL);
@@ -11,12 +11,18 @@ namespace Kydo
 		clazz = { sizeof(WNDCLASSEXW) };
 		clazz.hInstance = module;
 		clazz.lpszClassName = className;
+		clazz.lpfnWndProc = DefWindowProcW;
 		RegisterClassExW(&clazz);
 
 		RECT screen;
 		GetWindowRect(GetDesktopWindow(), &screen);
-		handle = CreateWindowExW(0, className, title, WS_OVERLAPPEDWINDOW, (screen.right - rect.right) >> 1, (screen.bottom - rect.right) >> 1, rect.right, rect.bottom, NULL, NULL, module, NULL);
+		rect.left = (screen.right - rect.right) >> 1;
+		rect.top = (screen.bottom - rect.bottom) >> 1;
+		handle = CreateWindowExW(0, className, title, WS_OVERLAPPEDWINDOW, rect.left, rect.top, rect.right, rect.bottom, NULL, NULL, module, NULL);
 	}
+
+	Window::~Window()
+	{ Destroy(); }
 
 
 	void Window::Show()

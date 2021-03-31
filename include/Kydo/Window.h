@@ -41,10 +41,10 @@
 
 namespace Kydo
 {
-	KYDO_API class Window
+	class KYDO_API Window
 	{
 	private:
-		MSG msg;
+		MSG msg {};
 		HWND handle;
 		HMODULE module;
 
@@ -56,7 +56,7 @@ namespace Kydo
 		bool alive = true, destroyed = false;
 	public:
 		Window(PCWSTR title, LONG width = 1280, LONG height = 720, PCWSTR className = L"MyClass", HMODULE = NULL);
-		~Window() { Destroy(); }
+		~Window();
 
 		void Show();
 		void Hide();
