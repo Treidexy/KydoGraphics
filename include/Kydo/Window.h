@@ -1,6 +1,6 @@
 #pragma once
 
-#pragma region #include <Windows.h>
+#pragma region include <Windows.h>
 #define STRICT
 
 #define NOGDICAPMASKS	  // CC_*, LC_*, PC_*, CP_*, TC_*, RC_
@@ -37,26 +37,33 @@
 #define NOMCX			  // Modem Configuration Extensions
 #include <Windows.h>
 #pragma endregion
-#include "Kydo.h"
+#include "Kydo/Core.h"
 
 namespace Kydo
 {
-	class Window
+	KYDO_API class Window
 	{
 	private:
-		HWND m_Handle;
-		HMODULE m_Module;
+		MSG msg;
+		HWND handle;
+		HMODULE module;
 
-		PCWSTR m_ClassName, m_Title;
-		WNDCLASSEXW m_Class;
+		PCWSTR className, title;
+		WNDCLASSEXW clazz;
 
-		RECT m_Rect;
+		RECT rect;
 
-		bool m_Alive;
+		bool alive = true, destroyed = false;
 	public:
-		Window(PCWSTR title, PCWSTR className = L"MyClass", HMODULE = NULL);
-		~Window();
+		Window(PCWSTR title, LONG width = 1280, LONG height = 720, PCWSTR className = L"MyClass", HMODULE = NULL);
+		~Window() { Destroy(); }
 
+		void Show();
+		void Hide();
+
+		void Update();
 		void Destroy();
+
+		bool IsAlive();
 	};
 }

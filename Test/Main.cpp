@@ -1,6 +1,10 @@
-extern __declspec(dllimport) void Test();
+#include <Kydo.h>
 
 int main()
 {
-	Test();
+	Kydo::Window wnd(L"Kydo Test");
+	wnd.Show();
+
+	while (wnd.IsAlive())
+		wnd.Update();
 }

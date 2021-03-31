@@ -2,19 +2,50 @@
 
 namespace Kydo
 {
-	Window::Window(PCWSTR title, PCWSTR className, HMODULE module)
-		: m_Module(module), m_Title(title), m_ClassName(className)
+	Window::Window(PCWSTR title, LONG width, LONG height, PCWSTR className, HMODULE module)
+		: module(module), title(title), className(className), rect { 0, 0, width, height }
 	{
-		if (!m_Module)
-			m_Module = GetModuleHandleW(NULL);
+		if (!module)
+			module = GetModuleHandleW(NULL);
 
-		m_Class = { sizeof(WNDCLASSEXW) };
-		m_Class.hInstance = m_Module;
-		m_Class.lpszClassName = m_ClassName;
-		RegisterClassExW(&m_Class);
+		clazz = { sizeof(WNDCLASSEXW) };
+		clazz.hInstance = module;
+		clazz.lpszClassName = className;
+		RegisterClassExW(&clazz);
 
 		RECT screen;
 		GetWindowRect(GetDesktopWindow(), &screen);
-		m_Handle = CreateWindowExW(0, m_ClassName, m_Title, WS_OVERLAPPEDWINDOW, (screen.right - m_Rect.right) >> 1, (screen.bottom - m_Rect.right) >> 1, m_Rect.right, m_Rect.bottom, NULL, NULL, m_Module, NULL);
+		handle = CreateWindowExW(0, className, title, WS_OVERLAPPEDWINDOW, (screen.right - rect.right) >> 1, (screen.bottom - rect.right) >> 1, rect.right, rect.bottom, NULL, NULL, module, NULL);
 	}
+
+
+	void Window::Show()
+	{ ShowWindowAsync(handle, TRUE); }
+
+	void Window::Hide()
+	{ ShowWindowAsync(handle, FALSE); }
+
+
+	void Window::Update()
+	{
+		if (GetMessageW(&msg, handle, 0, 0))
+		{
+			TranslateMessage(&msg);
+			DispatchMessageW(&msg);
+		}
+	}
+
+	void Window::Destroy()
+	{
+		if (!destroyed)
+		{
+			DestroyWindow(handle);
+			UnregisterClassW(className, module);
+
+			destroyed = true;
+		}
+	}
+
+	bool Window::IsAlive()
+	{ return alive; }
 }

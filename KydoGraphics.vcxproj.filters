@@ -26,5 +26,8 @@
     <ClInclude Include="include\Kydo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Kydo\Core.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
