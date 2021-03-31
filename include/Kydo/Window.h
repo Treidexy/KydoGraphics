@@ -6,10 +6,13 @@
 
 namespace Kydo
 {
+	class KYDO_API Context;
+
 	class KYDO_API Window
 	{
 	private:
 		static Window *Instance;
+		Context *context;
 
 		HDC dc, bmpDc;
 		MSG msg {};
@@ -40,5 +43,3 @@ namespace Kydo
 		static LRESULT CALLBACK KydoWinProc(__in HWND wnd, __in UINT msg, __in WPARAM wParam, __in LPARAM lParam);
 	};
 }
-
-#include "Kydo/Context.h"

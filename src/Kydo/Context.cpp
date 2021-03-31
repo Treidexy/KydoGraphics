@@ -84,8 +84,8 @@ namespace Kydo
 		}
 	}
 
-	Context::Context(Window &win)
-		: wnd(&win), pixels(wnd->pixels)
+	Context::Context(Window *win)
+		: wnd(win), pixels(wnd->pixels)
 	{
 		cl_int ec;
 
@@ -107,6 +107,10 @@ namespace Kydo
 
 	Context::~Context()
 	{ Destroy(); }
+
+
+	cl::Context &Context::GetContext()
+	{ return context; }
 
 
 	void Context::Destroy()
