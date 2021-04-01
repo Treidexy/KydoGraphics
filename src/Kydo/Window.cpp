@@ -17,8 +17,12 @@ namespace Kydo
 			return 0;
 
 		case WM_PAINT:
-			if (Instance->pixels)
+			if (Instance->pixels && Instance->renderer)
 			{
+				memcpy(Instance->pixels, ((CLRenderer *)Instance->renderer)->Pixels, Instance->width * Instance->height * sizeof(COLORREF));
+
+				//memset(Instance->pixels, 0xFF, Instance->width * Instance->height * sizeof(COLORREF));
+
 				PAINTSTRUCT paint;
 				HDC dc = BeginPaint(wnd, &paint);
 				BitBlt(dc, 0, 0, Instance->width, Instance->height, Instance->bmpDc, 0, 0, SRCCOPY);
@@ -92,6 +96,7 @@ namespace Kydo
 		CLRenderer *clRenderer = (CLRenderer *)renderer.get();
 		if (clRenderer->IsDrawing())
 		{
+			this->renderer = clRenderer;
 			clRenderer->Draw();
 			InvalidateRect(handle, NULL, TRUE);
 		}
