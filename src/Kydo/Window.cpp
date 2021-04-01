@@ -17,12 +17,8 @@ namespace Kydo
 			return 0;
 
 		case WM_PAINT:
-			if (Instance->pixels && Instance->renderer)
+			if (Instance->pixels)
 			{
-				//memcpy(Instance->pixels, ((CLRenderer *)Instance->renderer)->Pixels, Instance->width * Instance->height * sizeof(COLORREF));
-
-				//memset(Instance->pixels, 0xFF, Instance->width * Instance->height * sizeof(COLORREF));
-
 				PAINTSTRUCT paint;
 				HDC dc = BeginPaint(wnd, &paint);
 				BitBlt(dc, 0, 0, Instance->width, Instance->height, Instance->bmpDc, 0, 0, SRCCOPY);
@@ -72,11 +68,7 @@ namespace Kydo
 	}
 
 	Window::~Window()
-	{
-		if (wndThrd.joinable())
-			wndThrd.join();
-		Destroy();
-	}
+	{ Destroy(); }
 
 
 	void Window::Show()
@@ -88,37 +80,28 @@ namespace Kydo
 
 	void Window::Update()
 	{
-		if (!waiting)
-			wndThrd = std::thread([this]()
-				{
-					if (GetMessageW(&msg, handle, 0, 0))
-					{
-						TranslateMessage(&msg);
-						DispatchMessageW(&msg);
-					}
-					waiting = false;
-				});
-		waiting = true;
+		if (PeekMessageW(&msg, handle, 0, 0, PM_REMOVE))
+		{
+			TranslateMessage(&msg);
+			DispatchMessageW(&msg);
+		}
 	}
 
 	void Window::Clear()
 	{
+		std::printf("%i\n", nPixels);
 		memset(pixels, 0, nPixels * sizeof(COLORREF));
-		Render();
 	}
 
 	void Window::Render()
-	{ SwapBuffers(dc); }
+	{ RedrawWindow(handle, NULL, NULL, RDW_INVALIDATE); }
 
 	void Window::Render(const std::unique_ptr<Renderer> &renderer)
 	{
 		CLRenderer *clRenderer = (CLRenderer *)renderer.get();
 		if (clRenderer->IsDrawing())
-		{
-			this->renderer = clRenderer;
 			clRenderer->Draw();
-			Render();
-		}
+		Render();
 	}
 
 	void Window::Destroy()

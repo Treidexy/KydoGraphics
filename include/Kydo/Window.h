@@ -2,7 +2,6 @@
 
 #define NOMINMAX
 #include <Windows.h>
-#include <thread>
 #include <memory>
 #include "Kydo/Core.h"
 
@@ -14,8 +13,6 @@ namespace Kydo
 	{
 	private:
 		static Window *Instance;
-		bool waiting = false;
-		std::thread wndThrd;
 
 		HDC dc, bmpDc;
 		MSG msg {};
@@ -29,7 +26,6 @@ namespace Kydo
 		LONG x, y, width, height;
 		COLORREF *pixels;
 
-		Renderer *renderer;
 		bool alive = true, destroyed = false;
 	public:
 		Window(PCWSTR title, LONG width = 1280, LONG height = 720, PCWSTR className = L"MyClass", HMODULE = NULL);
