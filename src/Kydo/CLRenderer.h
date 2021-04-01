@@ -17,7 +17,6 @@ namespace Kydo
 		cl::Program prog;
 		cl::Kernel kernel;
 
-
 		bool alive = true;
 		Window *wnd;
 		std::string src;

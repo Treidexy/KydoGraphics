@@ -4,6 +4,8 @@
 
 namespace Kydo
 {
+	inline UINT titleBarHeight = GetSystemMetrics(SM_CYCAPTION);
+
 	inline const char *clGetErrorString(cl_int ec);
 	inline bool CheckEc(cl_int ec, bool &alive, int ln)
 	{
@@ -54,6 +56,7 @@ namespace Kydo
 		kernel = cl::Kernel(prog, "Draw", &ec); CHECK_EC(ec);
 		pixelMem = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, wnd->PixelCount * sizeof(COLORREF), wnd->Pixels, &ec); CHECK_EC(ec);
 		ec = kernel.setArg(0, pixelMem); CHECK_EC(ec);
+		ec = kernel.setArg(2, titleBarHeight); CHECK_EC(ec);
 	}
 
 	CLRenderer::~CLRenderer()

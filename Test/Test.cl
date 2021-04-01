@@ -30,7 +30,7 @@ static float Min(float x, float y)
 static float Max(float x, float y)
 { return x > y ? x : y; }
 
-kernel void Draw(global uint *pixels, global Triangle *tris)
+kernel void Draw(global uint *pixels, global Triangle *tris, uint titleBarHeight)
 {
 	uint id = get_global_id(0);
 	Vertex verts[3] =
@@ -61,6 +61,6 @@ kernel void Draw(global uint *pixels, global Triangle *tris)
 		uint min = Min(x0, x1);
 		uint max = Max(x0, x1);
 		for (uint x = min; x < max; x++)
-			pixels[x + (y + verts[0].Y + 23) * 512] = 0x00FF00;
+			pixels[x + (y + verts[0].Y + titleBarHeight) * 512] = 0x00FF00;
 	}
 }
