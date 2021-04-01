@@ -53,27 +53,27 @@ void DrawBottomFlat(global uint *pixels, global Triangle *tri)
 
 void DrawTopFlat(global uint *pixels, global Triangle *tri)
 {
-	uint y = get_global_id(0);
+	float m0 = (tri->X[2] - tri->X[0]) / (tri->Y[2] - tri->Y[0]);
+	float m1 = (tri->X[2] - tri->X[1]) / (tri->Y[2] - tri->Y[1]);
 
-	float i1 = (tri->X[2] - tri->X[0]) / (tri->Y[2] - tri->Y[0]);
-	float i2 = (tri->X[2] - tri->X[1]) / (tri->Y[2] - tri->Y[1]);
+	uint yStart = ceil(tri->Y[0] - 0.5f);
+	uint yEnd = ceil(tri->Y[2] - 0.5f);
 
-	float c1 = tri->X[2];
-	float c2 = tri->X[2];
-	
-	c1 += i1 * (y - tri->Y[3]);
-	c2 += i2 * (y - tri->Y[0]);
+	for (uint y = yStart; y < yEnd; y++)
+	{
+		float p0 = m0 * (y + 0.5f - tri->Y[0]) + tri->X[0];
+		float p1 = m1 * (y + 0.5f - tri->Y[1]) + tri->X[1];
 
-	for (uint x = c1; x <= c2; x++)
-		pixels[x + y * 512] = 0x00FF00;
+		uint xStart = ceil(p0 - 0.5f);
+		uint xEnd = ceil(p1 - 0.5f);
+
+		for (uint x = xStart; x < xEnd; x++)
+			pixels[x + y * 512] = 0x00FF00;
+	}
 }
 
-kernel void Draw(global uint *pixels, global Triangle *tri, global Rect *bounds)
+kernel void Draw(global uint *pixels, global Triangle *tris, global Rect *bounds)
 {
-	uint y = get_global_id(0);
-	if (y < bounds->Top || y > bounds->Bottom)
-		return;
-
-	DrawBottomFlat(pixels, tri);
-	DrawTopFlat(pixels, tri);
+	uint id = get_global_id(0);
+	DrawTopFlat(pixels, &tris[id]);
 }

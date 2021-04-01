@@ -18,13 +18,12 @@ namespace Kydo
 		cl::Program prog;
 		cl::Kernel kernel;
 
-		std::vector<Triangle> tris;
 
 		bool alive = true;
 		Window *wnd;
 		std::string src;
-		Rect triBounds;
-		Triangle tri;
+		std::vector<Rect> triBounds;
+		std::vector<Triangle> tris;
 	public:
 		CLRenderer(Window &, std::string_view src);
 		~CLRenderer() override;
