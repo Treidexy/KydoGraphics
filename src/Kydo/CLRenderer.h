@@ -8,8 +8,6 @@ namespace Kydo
 	class KYDO_API CLRenderer: public Renderer
 	{
 	private:
-		bool draw;
-
 		cl::Platform platform;
 		cl::Device device;
 		cl::Context context;
@@ -18,7 +16,7 @@ namespace Kydo
 		cl::Program prog;
 		cl::Kernel kernel;
 
-		bool alive = true;
+		bool alive = true, draw = false;
 		Window *wnd;
 		std::string src;
 	public:

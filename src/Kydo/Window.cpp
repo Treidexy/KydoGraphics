@@ -36,7 +36,7 @@ namespace Kydo
 	}
 
 	Window::Window(PCWSTR title, LONG w, LONG h, PCWSTR className, HMODULE mod)
-		: module(mod), title(title), className(className), width(w), height(h), nPixels((SIZE_T)width * (SIZE_T)height)
+		: module(mod), title(title), className(className), width(w), height(h), nPixels(w * h)
 	{
 		Instance = this;
 
@@ -133,6 +133,6 @@ namespace Kydo
 	COLORREF *Window::GetPixels()
 	{ return pixels; }
 
-	SIZE_T Window::GetPixelCount()
+	LONG Window::GetPixelCount()
 	{ return nPixels; }
 }

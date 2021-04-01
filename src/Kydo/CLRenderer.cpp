@@ -3,22 +3,25 @@
 namespace Kydo
 {
 	inline const char *clGetErrorString(cl_int ec);
-	inline void CheckEc(cl_int ec, bool &alive, int ln)
+	inline bool CheckEc(cl_int ec, bool &alive, int ln)
 	{
 		if (ec)
 		{
 			std::printf("OpenCL Error at Line %i: %s\n", ln, clGetErrorString(ec));
 			alive = false;
+			return true;
 		}
+
+		return false;
 	}
 
-	#define CHECK_EC(ec) CheckEc(ec, alive, __LINE__);
+	#define CHECK_EC(ec) if (CheckEc(ec, alive, __LINE__)) return
 
 	CLRenderer::CLRenderer(Window &win, std::string_view source)
 		: wnd(&win), src(source)
 	{
 		cl_int ec;
-		platform = cl::Platform::getDefault(&ec); CHECK_EC(ec);
+		ec = cl::Platform::get(&platform); CHECK_EC(ec);
 		std::vector<cl::Device> devices;
 		ec = platform.getDevices(CL_DEVICE_TYPE_GPU, &devices); CHECK_EC(ec);
 		if (ec == CL_DEVICE_NOT_FOUND || ec == CL_DEVICE_NOT_AVAILABLE || devices.empty())
@@ -33,9 +36,8 @@ namespace Kydo
 		context = cl::Context(device, NULL, NULL, NULL, &ec); CHECK_EC(ec);
 		q = cl::CommandQueue(context, device, cl::QueueProperties::None, &ec); CHECK_EC(ec);
 
-		pixelMem = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, wnd->PixelCount * sizeof(COLORREF), (void *)wnd->Pixels, &ec); CHECK_EC(ec);
-
-		prog = cl::Program(context, src, true, &ec); CHECK_EC(ec);
+		prog = cl::Program(context, src, false, &ec); CHECK_EC(ec);
+		ec = prog.build(device); CHECK_EC(ec);
 		if (ec == CL_BUILD_PROGRAM_FAILURE)
 		{
 			alive = false;
@@ -46,6 +48,9 @@ namespace Kydo
 		}
 
 		kernel = cl::Kernel(prog, "Draw", &ec); CHECK_EC(ec);
+		std::printf("%u, %u, = %u | %u\n", wnd->Width, wnd->Height, wnd->Width * wnd->Height, wnd->PixelCount);
+		std::puts("");
+		pixelMem = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, wnd->PixelCount * sizeof(COLORREF), wnd->Pixels, &ec); CHECK_EC(ec);
 	}
 
 	CLRenderer::~CLRenderer()
@@ -59,7 +64,7 @@ namespace Kydo
 		//memset(wnd->Pixels, 0xFF, (cl::size_type)wnd->Width * (cl::size_type)wnd->Height * sizeof(COLORREF));
 
 		cl_int ec;
-		ec = kernel.setArg(0, &pixelMem); CHECK_EC(ec);
+		ec = kernel.setArg(0, pixelMem); CHECK_EC(ec);
 		ec = q.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(wnd->PixelCount)); CHECK_EC(ec);
 		ec = q.flush(); CHECK_EC(ec);
 	}
