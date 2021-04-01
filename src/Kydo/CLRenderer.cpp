@@ -60,6 +60,9 @@ namespace Kydo
 
 	void CLRenderer::Draw()
 	{
+		if (tris.empty())
+			return;
+
 		cl_int ec;
 		triMem = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, tris.size() * sizeof(Triangle), tris.data(), &ec); CHECK_EC(ec);
 		triBoundsMem = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, triBounds.size() * sizeof(Rect), triBounds.data(), &ec); CHECK_EC(ec);
