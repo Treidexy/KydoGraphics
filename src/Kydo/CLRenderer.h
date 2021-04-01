@@ -13,18 +13,23 @@ namespace Kydo
 		cl::Context context;
 		cl::CommandQueue q;
 		cl::Buffer pixelMem;
+		cl::Buffer triMem;
+		cl::Buffer triCountMem;
 		cl::Program prog;
 		cl::Kernel kernel;
 
-		bool alive = true, draw = false;
+		std::vector<Triangle> tris;
+
+		bool alive = true;
 		Window *wnd;
 		std::string src;
+		UINT triCount;
 	public:
 		CLRenderer(Window &, std::string_view src);
 		~CLRenderer() override;
 
 		void Draw();
-		virtual void Render() override;
+		virtual void Render(const Triangle &) override;
 
 		bool IsDrawing();
 		virtual bool IsAlive() override;

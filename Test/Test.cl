@@ -1,8 +1,9 @@
-typedef struct Point Point;
+typedef struct Triangle Triangle;
 
-struct Point
+struct Triangle
 {
-	float X, Y;
+	float X[3];
+	float Y[3];
 };
 
 uint Hash(uint n)
@@ -18,8 +19,19 @@ uint Hash(uint n)
 	return n;
 }
 
-kernel void Draw(global uint *pixels)
+kernel void Draw(global uint *pixels, global Triangle *tris, global uint *nTris)
 {
-	size_t id = get_global_id(0);
-	pixels[id] = (pixels[id] ^ Hash(id)) & 0x00FF00;
+	uint id = get_global_id(0);
+	uint x = id % 512, y = id / 512;
+	for (uint i = 0; i < *nTris; i++)
+	{
+		float minX = min(min(tris[i].X[0], tris[i].X[1]), tris[i].X[2]);
+		float maxX = max(max(tris[i].X[0], tris[i].X[1]), tris[i].X[2]);
+		float minY = min(min(tris[i].Y[0], tris[i].Y[1]), tris[i].Y[2]);
+		float maxY = max(max(tris[i].Y[0], tris[i].Y[1]), tris[i].Y[2]);
+
+		if (x >= minX && x <= minX)
+			if (y >= minY && y <= maxY)
+				pixels[id] = 0x00FF00;
+	}
 }

@@ -15,7 +15,7 @@ namespace Kydo
 		return false;
 	}
 
-	#define CHECK_EC(ec) if (CheckEc(ec, alive, __LINE__)) return
+	#define CHECK_EC(ec) if (CheckEc(ec, this->alive, __LINE__)) return
 
 	CLRenderer::CLRenderer(Window &win, std::string_view source)
 		: wnd(&win), src(source)
@@ -23,12 +23,13 @@ namespace Kydo
 		cl_int ec;
 		ec = cl::Platform::get(&platform); CHECK_EC(ec);
 		std::vector<cl::Device> devices;
-		ec = platform.getDevices(CL_DEVICE_TYPE_GPU, &devices); CHECK_EC(ec);
+		ec = platform.getDevices(CL_DEVICE_TYPE_GPU, &devices);
 		if (ec == CL_DEVICE_NOT_FOUND || ec == CL_DEVICE_NOT_AVAILABLE || devices.empty())
 		{
 			alive = false;
 			return;
 		}
+		CHECK_EC(ec);
 		device = devices.front();
 
 		std::printf("Using OpenCL Device '%s'\n", device.getInfo<CL_DEVICE_NAME>(&ec).c_str()); CHECK_EC(ec);
@@ -37,7 +38,7 @@ namespace Kydo
 		q = cl::CommandQueue(context, device, cl::QueueProperties::None, &ec); CHECK_EC(ec);
 
 		prog = cl::Program(context, src, false, &ec); CHECK_EC(ec);
-		ec = prog.build(device); CHECK_EC(ec);
+		ec = prog.build(device);
 		if (ec == CL_BUILD_PROGRAM_FAILURE)
 		{
 			alive = false;
@@ -46,38 +47,41 @@ namespace Kydo
 				puts(msg.second.c_str());
 			return;
 		}
+		CHECK_EC(ec);
 
 		kernel = cl::Kernel(prog, "Draw", &ec); CHECK_EC(ec);
-		std::printf("%u, %u, = %u | %u\n", wnd->Width, wnd->Height, wnd->Width * wnd->Height, wnd->PixelCount);
-		std::puts("");
 		pixelMem = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, wnd->PixelCount * sizeof(COLORREF), wnd->Pixels, &ec); CHECK_EC(ec);
+		triCountMem = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, sizeof(UINT), &triCount, &ec); CHECK_EC(ec);
+		ec = kernel.setArg(0, pixelMem); CHECK_EC(ec);
+		ec = kernel.setArg(2, triCountMem); CHECK_EC(ec);
 	}
 
 	CLRenderer::~CLRenderer()
-	{
-		q.finish();
-	}
+	{ std::puts("Finishing all calls..."); }
 
 
 	void CLRenderer::Draw()
 	{
-		//memset(wnd->Pixels, 0xFF, (cl::size_type)wnd->Width * (cl::size_type)wnd->Height * sizeof(COLORREF));
-
 		cl_int ec;
-		ec = kernel.setArg(0, pixelMem); CHECK_EC(ec);
-		ec = q.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(wnd->PixelCount)); CHECK_EC(ec);
-		ec = q.flush(); CHECK_EC(ec);
+		triCount = tris.size();
+		triMem = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, triCount * sizeof(Triangle), tris.data(), &ec); CHECK_EC(ec);
+		for (const auto &tri : tris)
+		{
+			ec = kernel.setArg(1, triMem); CHECK_EC(ec);
+			ec = q.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(wnd->PixelCount)); CHECK_EC(ec);
+			ec = q.flush(); CHECK_EC(ec);
+		}
 	}
 
-	void CLRenderer::Render()
-	{ draw = true; }
+	void CLRenderer::Render(const Triangle &tri)
+	{ tris.push_back(tri); }
 
 
 	bool CLRenderer::IsAlive()
 	{ return alive; }
 
 	bool CLRenderer::IsDrawing()
-	{ return draw; }
+	{ return !tris.empty(); }
 
 	inline const char *clGetErrorString(cl_int ec)
 	{

@@ -89,6 +89,9 @@ namespace Kydo
 			TranslateMessage(&msg);
 			DispatchMessageW(&msg);
 		}
+
+		using namespace std::chrono_literals;
+		std::this_thread::sleep_for(50ms);
 	}
 
 	void Window::Render(const std::unique_ptr<Renderer> &renderer)

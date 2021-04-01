@@ -4,6 +4,7 @@
 #include <memory>
 #include <string_view>
 #include "Kydo/Window.h"
+#include "Kydo/Triangle.h"
 
 namespace Kydo
 {
@@ -13,7 +14,7 @@ namespace Kydo
 		Renderer() = default;
 	public:
 		virtual ~Renderer() = default;
-		virtual void Render() = NULL;
+		virtual void Render(const Triangle &) = NULL;
 
 		virtual bool IsAlive() = NULL;
 
