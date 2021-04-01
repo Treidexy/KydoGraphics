@@ -21,7 +21,12 @@ int main()
 	{
 		wnd.Show();
 		while (wnd.IsAlive())
+		{
+			renderer->Render();
+
 			wnd.Update();
+			wnd.Render(renderer);
+		}
 		wnd.Destroy();
 	}
 

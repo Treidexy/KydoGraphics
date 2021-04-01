@@ -6,7 +6,10 @@ namespace Kydo
 	inline void CheckEc(cl_int ec, bool &alive, int ln)
 	{
 		if (ec)
-			std::printf("OpenCL Error at Line %i: %s\n", ln, clGetErrorString(alive = ec));
+		{
+			std::printf("OpenCL Error at Line %i: %s\n", ln, clGetErrorString(ec));
+			alive = false;
+		}
 	}
 
 	#define CHECK_EC(ec) CheckEc(ec, alive, __LINE__);
@@ -19,7 +22,10 @@ namespace Kydo
 		std::vector<cl::Device> devices;
 		ec = platform.getDevices(CL_DEVICE_TYPE_GPU, &devices); CHECK_EC(ec);
 		if (ec == CL_DEVICE_NOT_FOUND || ec == CL_DEVICE_NOT_AVAILABLE || devices.empty())
+		{
+			alive = false;
 			return;
+		}
 		device = devices.front();
 
 		std::printf("Using OpenCL Device '%s'\n", device.getInfo<CL_DEVICE_NAME>(&ec).c_str()); CHECK_EC(ec);
@@ -32,6 +38,7 @@ namespace Kydo
 		prog = cl::Program(context, src, true, &ec); CHECK_EC(ec);
 		if (ec == CL_BUILD_PROGRAM_FAILURE)
 		{
+			alive = false;
 			auto log = prog.getBuildInfo<CL_PROGRAM_BUILD_LOG>(&ec); CHECK_EC(ec);
 			for (auto msg : log)
 				puts(msg.second.c_str());
@@ -41,8 +48,22 @@ namespace Kydo
 		kernel = cl::Kernel(prog, "Draw", &ec); CHECK_EC(ec);
 	}
 
+	void CLRenderer::Draw()
+	{
+		kernel.setArg(0, pixelMem);
+		q.enqueueNDRangeKernel(kernel, 0, cl::NDRange((cl::size_type)wnd->Width * (cl::size_type)wnd->Height));
+		q.flush();
+	}
+
+	void CLRenderer::Render()
+	{ draw = true; }
+
+
 	bool CLRenderer::IsAlive()
 	{ return alive; }
+
+	bool CLRenderer::IsDrawing()
+	{ return draw; }
 
 	inline const char *clGetErrorString(cl_int ec)
 	{

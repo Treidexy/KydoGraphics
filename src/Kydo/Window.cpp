@@ -1,5 +1,7 @@
 #include "Kydo/Window.h"
 
+#include "Kydo/CLRenderer.h"
+
 namespace Kydo
 {
 	Window *Window::Instance;
@@ -82,6 +84,16 @@ namespace Kydo
 		{
 			TranslateMessage(&msg);
 			DispatchMessageW(&msg);
+		}
+	}
+
+	void Window::Render(const std::unique_ptr<Renderer> &renderer)
+	{
+		CLRenderer *clRenderer = (CLRenderer *)renderer.get();
+		if (clRenderer->IsDrawing())
+		{
+			clRenderer->Draw();
+			InvalidateRect(handle, NULL, TRUE);
 		}
 	}
 

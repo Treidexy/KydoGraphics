@@ -2,10 +2,13 @@
 
 #define NOMINMAX
 #include <Windows.h>
+#include <memory>
 #include "Kydo/Core.h"
 
 namespace Kydo
 {
+	class KYDO_API Renderer;
+
 	class KYDO_API Window
 	{
 	private:
@@ -31,6 +34,7 @@ namespace Kydo
 		void Hide();
 
 		void Update();
+		void Render(const std::unique_ptr<Renderer> &);
 		void Destroy();
 
 		bool IsAlive();
@@ -51,3 +55,5 @@ namespace Kydo
 		static LRESULT CALLBACK KydoWinProc(__in HWND wnd, __in UINT msg, __in WPARAM wParam, __in LPARAM lParam);
 	};
 }
+
+#include "Kydo/Renderer.h"

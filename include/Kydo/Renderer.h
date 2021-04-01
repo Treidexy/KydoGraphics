@@ -13,6 +13,8 @@ namespace Kydo
 		Renderer() = default;
 	public:
 		virtual ~Renderer() = default;
+		virtual void Render() = NULL;
+
 		virtual bool IsAlive() = NULL;
 
 		static std::unique_ptr<Renderer> Create(Window &, std::string_view src);
