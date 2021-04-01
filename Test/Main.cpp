@@ -31,9 +31,10 @@ int main()
 				Kydo::Vertex y = { x1, y1, };
 				Kydo::Vertex z = { x2, y2, };
 				Kydo::Triangle tri = { x, y, z, };
-				printf("%i, %i; %i, %i; %i, %i\n", x0, y0, x1, y1, x2, y2);
+				//printf("%i, %i; %i, %i; %i, %i\n", x0, y0, x1, y1, x2, y2);
 				renderer->Render(tri);
 				wnd.Update();
+				wnd.Clear();
 				wnd.Render(renderer);
 			}
 			wnd.Destroy();

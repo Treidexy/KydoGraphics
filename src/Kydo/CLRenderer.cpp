@@ -68,6 +68,12 @@ namespace Kydo
 		if (tris.empty())
 			return;
 
+		for (const auto &tri : tris)
+			printf("%i, %i; %i, %i; %i, %i\n",
+				tri.Vertices[0].X, tri.Vertices[0].Y,
+				tri.Vertices[1].X, tri.Vertices[1].Y,
+				tri.Vertices[2].X, tri.Vertices[2].Y);
+
 		cl_int ec;
 		triMem = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, tris.size() * sizeof(Triangle), tris.data(), &ec); CHECK_EC(ec);
 		ec = kernel.setArg(1, triMem); CHECK_EC(ec);

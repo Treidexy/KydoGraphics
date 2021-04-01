@@ -91,12 +91,14 @@ namespace Kydo
 		}
 	}
 
-	void Window::Render()
+	void Window::Clear()
 	{
-		using namespace std::chrono_literals;
-		std::this_thread::sleep_for(50ms);
-		SwapBuffers(dc);
+		memset(pixels, 0, nPixels * sizeof(COLORREF));
+		Render();
 	}
+
+	void Window::Render()
+	{ SwapBuffers(dc); }
 
 	void Window::Render(const std::unique_ptr<Renderer> &renderer)
 	{
