@@ -68,10 +68,10 @@ namespace Kydo
 		for (const auto &tri : tris)
 		{
 			this->tri = tri;
-			//triBounds.Left = std::min(tri.X[0], std::min(tri.X[1], tri.X[2]));
+			triBounds.Left = std::min(tri.X[0], std::min(tri.X[1], tri.X[2]));
 			triBounds.Top  = std::min(tri.Y[0], std::min(tri.Y[1], tri.Y[2]));
 
-			//triBounds.Right  = std::max(tri.X[0], std::max(tri.X[1], tri.X[2]));
+			triBounds.Right  = std::max(tri.X[0], std::max(tri.X[1], tri.X[2]));
 			triBounds.Bottom = std::max(tri.Y[0], std::max(tri.Y[1], tri.Y[2]));
 			ec = q.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(wnd->Height)); CHECK_EC(ec);
 			ec = q.flush(); CHECK_EC(ec);

@@ -6,15 +6,15 @@ namespace Kydo
 {
 	struct Triangle
 	{
-		float X[3];
-		float Y[3];
+		UINT X[3];
+		UINT Y[3];
 	};
 
 	struct Rect
 	{
-		float Left;
-		float Top;
-		float Right;
-		float Bottom;
+		UINT Left;
+		UINT Top;
+		UINT Right;
+		UINT Bottom;
 	};
 }
