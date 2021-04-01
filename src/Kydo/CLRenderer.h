@@ -14,7 +14,7 @@ namespace Kydo
 		cl::CommandQueue q;
 		cl::Buffer pixelMem;
 		cl::Buffer triMem;
-		cl::Buffer triCountMem;
+		cl::Buffer triBoundsMem;
 		cl::Program prog;
 		cl::Kernel kernel;
 
@@ -23,7 +23,8 @@ namespace Kydo
 		bool alive = true;
 		Window *wnd;
 		std::string src;
-		UINT triCount;
+		Rect triBounds;
+		Triangle tri;
 	public:
 		CLRenderer(Window &, std::string_view src);
 		~CLRenderer() override;

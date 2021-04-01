@@ -51,9 +51,11 @@ namespace Kydo
 
 		kernel = cl::Kernel(prog, "Draw", &ec); CHECK_EC(ec);
 		pixelMem = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, wnd->PixelCount * sizeof(COLORREF), wnd->Pixels, &ec); CHECK_EC(ec);
-		triCountMem = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, sizeof(UINT), &triCount, &ec); CHECK_EC(ec);
+		triMem = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, sizeof(Triangle), &tri, &ec); CHECK_EC(ec);
+		triBoundsMem = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, sizeof(Rect), &triBounds, &ec); CHECK_EC(ec);
 		ec = kernel.setArg(0, pixelMem); CHECK_EC(ec);
-		ec = kernel.setArg(2, triCountMem); CHECK_EC(ec);
+		ec = kernel.setArg(1, triMem); CHECK_EC(ec);
+		ec = kernel.setArg(1, triBoundsMem); CHECK_EC(ec);
 	}
 
 	CLRenderer::~CLRenderer()
@@ -63,12 +65,15 @@ namespace Kydo
 	void CLRenderer::Draw()
 	{
 		cl_int ec;
-		triCount = tris.size();
-		triMem = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, triCount * sizeof(Triangle), tris.data(), &ec); CHECK_EC(ec);
 		for (const auto &tri : tris)
 		{
-			ec = kernel.setArg(1, triMem); CHECK_EC(ec);
-			ec = q.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(wnd->PixelCount)); CHECK_EC(ec);
+			this->tri = tri;
+			triBounds.Left = std::min(tri.X[0], std::min(tri.X[1], tri.X[2]));
+			triBounds.Top  = std::min(tri.Y[0], std::min(tri.Y[1], tri.Y[2]));
+
+			triBounds.Right  = std::max(tri.X[0], std::max(tri.X[1], tri.X[2]));
+			triBounds.Bottom = std::max(tri.Y[0], std::max(tri.Y[1], tri.Y[2]));
+			ec = q.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(wnd->Height)); CHECK_EC(ec);
 			ec = q.flush(); CHECK_EC(ec);
 		}
 	}

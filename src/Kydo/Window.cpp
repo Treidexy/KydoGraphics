@@ -101,7 +101,7 @@ namespace Kydo
 		{
 			this->renderer = clRenderer;
 			clRenderer->Draw();
-			InvalidateRect(handle, NULL, TRUE);
+			SwapBuffers(dc);
 		}
 	}
 

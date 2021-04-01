@@ -4,7 +4,7 @@
 #include <memory>
 #include <string_view>
 #include "Kydo/Window.h"
-#include "Kydo/Triangle.h"
+#include "Kydo/Shapes.h"
 
 namespace Kydo
 {

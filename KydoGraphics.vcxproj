@@ -14,7 +14,7 @@
     <ClInclude Include="include\Kydo.h" />
     <ClInclude Include="include\Kydo\Core.h" />
     <ClInclude Include="include\Kydo\Renderer.h" />
-    <ClInclude Include="include\Kydo\Triangle.h" />
+    <ClInclude Include="include\Kydo\Shapes.h" />
     <ClInclude Include="include\Kydo\Window.h" />
     <ClInclude Include="src\Kydo\CLRenderer.h" />
   </ItemGroup>

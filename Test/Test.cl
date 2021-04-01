@@ -1,9 +1,18 @@
 typedef struct Triangle Triangle;
+typedef struct Rect Rect;
 
 struct Triangle
 {
 	float X[3];
 	float Y[3];
+};
+
+struct Rect
+{
+	float Left;
+	float Top;
+	float Right;
+	float Bottom;
 };
 
 uint Hash(uint n)
@@ -19,19 +28,11 @@ uint Hash(uint n)
 	return n;
 }
 
-kernel void Draw(global uint *pixels, global Triangle *tris, global uint *nTris)
+kernel void Draw(global uint *pixels, global Triangle *tris, global Rect *bounds)
 {
-	uint id = get_global_id(0);
-	uint x = id % 512, y = id / 512;
-	for (uint i = 0; i < *nTris; i++)
-	{
-		float minX = min(min(tris[i].X[0], tris[i].X[1]), tris[i].X[2]);
-		float maxX = max(max(tris[i].X[0], tris[i].X[1]), tris[i].X[2]);
-		float minY = min(min(tris[i].Y[0], tris[i].Y[1]), tris[i].Y[2]);
-		float maxY = max(max(tris[i].Y[0], tris[i].Y[1]), tris[i].Y[2]);
+	uint y = get_global_id(0);
 
-		if (x >= minX && x <= maxX)
-			if (y >= minY && y <= maxY)
-				pixels[id] = 0x00FF00;
-	}
+	for (uint x = bounds.Left; x <= bounds.Right; x++)
+		if (y >= bounds.Top && y <= bounds.Bottom)
+			pixels[id] = 0x00FF00;
 }

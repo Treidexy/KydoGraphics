@@ -27,7 +27,7 @@
     <ClInclude Include="include\Kydo\Window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Kydo\Triangle.h">
+    <ClInclude Include="include\Kydo\Shapes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Kydo\CLRenderer.h">

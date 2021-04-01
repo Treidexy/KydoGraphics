@@ -9,4 +9,12 @@ namespace Kydo
 		float X[3];
 		float Y[3];
 	};
+
+	struct Rect
+	{
+		float Left;
+		float Top;
+		float Right;
+		float Bottom;
+	};
 }
