@@ -36,6 +36,7 @@ namespace Kydo
 		void Hide();
 
 		void Update();
+		void Render();
 		void Render(const std::unique_ptr<Renderer> &);
 		void Destroy();
 

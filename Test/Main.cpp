@@ -1,6 +1,41 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include <Kydo.h>
 #include <cstdlib>
+#include <algorithm>
+
+static UINT titleBarHeight = GetSystemMetrics(SM_CYCAPTION);
+
+int FindCommonDenominator(int x, int y)
+{
+	if (x == 0 || y == 0)
+		return 1;
+
+	x = x < 0 ? -x : x;
+	y = y < 0 ? -y : y;
+
+	while (x != y)
+		if (x > y)
+			x -= y;
+		else
+			y -= x;
+	return x;
+}
+
+void DrawLine(COLORREF *pixels, const Kydo::Vertex &v0, const Kydo::Vertex &v1)
+{
+	const Kydo::Vertex &min = (v0.X < v1.X) ? v0 : v1;
+	const Kydo::Vertex &max = (v0.X > v1.X) ? v0 : v1;
+
+	UINT dx = max.X - min.X;
+	UINT dy = max.Y - min.Y;
+
+	for (UINT x = min.X; x < max.X; x++)
+	{
+		UINT y = min.Y + dy * (x - min.X) / dx;
+
+		pixels[x + (511 - y) * 512] = 0x00FF00;
+	}
+}
 
 int main()
 {
@@ -17,22 +52,25 @@ int main()
 		}
 
 		Kydo::Window wnd(L"Kydo Test", 512, 512);
-		auto renderer = Kydo::Renderer::Create(wnd, src);
-		if (renderer->IsAlive())
-		{
+		//auto renderer = Kydo::Renderer::Create(wnd, src);
+		//if (renderer->IsAlive())
+		//{
 			wnd.Show();
-			renderer->Render(
-				{
-					256, 128, 384,
-					128, 384, 384,
-				});
-			while (wnd.IsAlive() && renderer->IsAlive())
+			DrawLine(wnd.Pixels, { 256, 128 }, { 128, 384 });
+			DrawLine(wnd.Pixels, { 128, 384 }, { 384, 384 });
+			DrawLine(wnd.Pixels, { 384, 384 }, { 256, 128 });
+			//renderer->Render(
+			//	{
+			//		256, 128, 384,
+			//		128, 384, 384,
+			//	});
+			while (wnd.IsAlive()) // && renderer->IsAlive())
 			{
 				wnd.Update();
-				wnd.Render(renderer);
+				wnd.Render();
 			}
 			wnd.Destroy();
-		}
+		//}
 	}
 
 	std::system("pause");

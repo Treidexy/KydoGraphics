@@ -94,6 +94,9 @@ namespace Kydo
 		std::this_thread::sleep_for(50ms);
 	}
 
+	void Window::Render()
+	{ SwapBuffers(dc); }
+
 	void Window::Render(const std::unique_ptr<Renderer> &renderer)
 	{
 		CLRenderer *clRenderer = (CLRenderer *)renderer.get();
@@ -101,7 +104,7 @@ namespace Kydo
 		{
 			this->renderer = clRenderer;
 			clRenderer->Draw();
-			SwapBuffers(dc);
+			Render();
 		}
 	}
 

@@ -4,10 +4,15 @@
 
 namespace Kydo
 {
+	struct Vertex
+	{
+		UINT X, Y;
+		COLORREF Color;
+	};
+
 	struct Triangle
 	{
-		UINT X[3];
-		UINT Y[3];
+		Vertex Vertices[3];
 	};
 
 	struct Rect

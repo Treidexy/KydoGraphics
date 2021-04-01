@@ -81,14 +81,14 @@ namespace Kydo
 
 	void CLRenderer::Render(const Triangle &tri)
 	{
-		tris.push_back(tri);
-		triBounds.push_back(
-			{
-				std::min({ tri.X[0], tri.X[1], tri.X[2] }),
-				std::min({ tri.Y[0], tri.Y[1], tri.Y[2] }),
-				std::max({ tri.X[0], tri.X[1], tri.X[2] }),
-				std::max({ tri.Y[0], tri.Y[1], tri.Y[2] }),
-			});
+		//tris.push_back(tri);
+		//triBounds.push_back(
+		//	{
+		//		std::min({ tri.X[0], tri.X[1], tri.X[2] }),
+		//		std::min({ tri.Y[0], tri.Y[1], tri.Y[2] }),
+		//		std::max({ tri.X[0], tri.X[1], tri.X[2] }),
+		//		std::max({ tri.Y[0], tri.Y[1], tri.Y[2] }),
+		//	});
 	}
 
 
