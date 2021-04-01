@@ -35,35 +35,34 @@ void DrawLine(COLORREF *pixels, const Kydo::Vertex &v0, const Kydo::Vertex &v1)
 
 void DrawTriangle(COLORREF *pixels, const Kydo::Triangle &tri)
 {
-	Kydo::Rect bounds
+	Kydo::Vertex verts[] =
 	{
-		std::min({ tri.Vertices[0].X, tri.Vertices[1].X, tri.Vertices[2].X }),
-		std::min({ tri.Vertices[0].Y, tri.Vertices[1].Y, tri.Vertices[2].Y }),
-		std::max({ tri.Vertices[0].X, tri.Vertices[1].X, tri.Vertices[2].X }),
-		std::max({ tri.Vertices[0].Y, tri.Vertices[1].Y, tri.Vertices[2].Y }),
+		tri.Vertices[0],
+		tri.Vertices[1],
+		tri.Vertices[2],
 	};
 
-	for (UINT y = bounds.Top; y < bounds.Bottom; y++)
+	Kydo::Vertex tmp;
+	for (UINT i = 0; i < 3; i++)
+		for (UINT j = 0; j < 3; j++)
+			if (verts[i].Y > verts[j].Y)
+			{
+				// Do a little switch-a-roo
+				tmp = verts[i];
+				verts[i] = verts[j];
+				verts[j] = tmp;
+			}
+
+	UINT dy = verts[0].Y - verts[2].Y;
+	for (UINT y = 0; y < dy; y++)
 	{
-		//float y1 = Lerp(tri.Vertices[0].Y, tri.Vertices[1].Y, y - bounds.Top);
-		//float y2 = Lerp(tri.Vertices[1].Y, tri.Vertices[2].Y, y - bounds.Top);
-		//float y3 = Lerp(tri.Vertices[2].Y, tri.Vertices[0].Y, y - bounds.Top);
-		float yr = float(y - bounds.Top) / float(bounds.Bottom - bounds.Top);
+		UINT x1 = Lerp(verts[1].X, verts[2].X, float(y) / dy);
+		UINT x2 = Lerp(verts[0].X, verts[2].X, float(y) / dy);
 
-		float minX =  INFINITY;
-		float maxX = -INFINITY;
-		for (float rx = 0; rx < bounds.Right - bounds.Left; rx++)
-		{
-			float x1 = Lerp(tri.Vertices[0].X, tri.Vertices[1].X, yr);
-			float x2 = Lerp(tri.Vertices[1].X, tri.Vertices[2].X, yr);
-			float x3 = Lerp(tri.Vertices[2].X, tri.Vertices[0].X, yr);
-
-			minX = std::min({ minX, x1, x2, x3 });
-			maxX = std::max({ maxX, x1, x2, x3 });
-		}
-
-		for (UINT x = minX; x < maxX; x++)
-			pixels[x + (511 - y + titleBarHeight) * 512] = 0x00FF00;
+		int min = std::min(x1, x2);
+		int max = std::max(x1, x2);
+		for (UINT x = min; x < max; x++)
+			pixels[x + (y + verts[2].Y + titleBarHeight) * 512] = 0x00FF00;
 	}
 }
 
