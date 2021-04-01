@@ -8,31 +8,6 @@ static UINT titleBarHeight = GetSystemMetrics(SM_CYCAPTION);
 static float Lerp(float x, float y, float t)
 { return x + t * (y - x); }
 
-void DrawLine(COLORREF *pixels, const Kydo::Vertex &v0, const Kydo::Vertex &v1)
-{
-	const Kydo::Vertex &min = (v0.Y < v1.Y) ? v0 : v1;
-	const Kydo::Vertex &max = (v0.Y < v1.Y) ? v1 : v0;
-
-	INT dx = max.X - min.X;
-	INT dy = max.Y - min.Y;
-
-	if (dx == 0)
-		dx = 1;
-	if (dy == 0)
-		dy = 1;
-
-	INT ror = (dx * min.Y) / dy;
-	INT b = min.X - ror;
-
-	for (UINT y = min.Y; y <= max.Y; y++)
-	{
-		INT ror = (dx * y) / dy;
-		INT x = ror + b;
-
-		pixels[x + (512 - y - titleBarHeight - 1) * 512] = 0x00FF00;
-	}
-}
-
 void DrawTriangle(COLORREF *pixels, const Kydo::Triangle &tri)
 {
 	Kydo::Vertex verts[] =
@@ -81,31 +56,29 @@ int main()
 		}
 
 		Kydo::Window wnd(L"Kydo Test", 512, 512);
-		//auto renderer = Kydo::Renderer::Create(wnd, src);
-		//if (renderer->IsAlive())
-		//{
+		auto renderer = Kydo::Renderer::Create(wnd, src);
+		if (renderer->IsAlive())
+		{
 			wnd.Show();
-			//DrawLine(wnd.Pixels, { 256, 128 }, { 128, 384 });
-			//DrawLine(wnd.Pixels, { 128, 384 }, { 384, 384 });
-			//DrawLine(wnd.Pixels, { 384, 384 }, { 256, 128 });
-			DrawTriangle(wnd.Pixels, Kydo::Triangle
+			//DrawTriangle(wnd.Pixels, Kydo::Triangle
+			//	{
+			//		Kydo::Vertex { 256, 128, },
+			//		Kydo::Vertex { 128, 384, },
+			//		Kydo::Vertex { 384, 384, },
+			//	});
+			renderer->Render(Kydo::Triangle
 				{
 					Kydo::Vertex { 256, 128, },
 					Kydo::Vertex { 128, 384, },
 					Kydo::Vertex { 384, 384, },
 				});
-			//renderer->Render(
-			//	{
-			//		256, 128, 384,
-			//		128, 384, 384,
-			//	});
-			while (wnd.IsAlive()) // && renderer->IsAlive())
+			while (wnd.IsAlive() && renderer->IsAlive())
 			{
 				wnd.Update();
 				wnd.Render();
 			}
 			wnd.Destroy();
-		//}
+		}
 	}
 
 	std::system("pause");
