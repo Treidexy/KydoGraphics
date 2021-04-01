@@ -22,20 +22,17 @@ int main()
 		if (renderer->IsAlive())
 		{
 			wnd.Show();
-			renderer->Render(Kydo::Triangle
-				{
-					Kydo::Vertex { 256 / 2, 128, },
-					Kydo::Vertex { 128 / 2, 384, },
-					Kydo::Vertex { 384 / 2, 384, },
-				});
-			renderer->Render(Kydo::Triangle
-				{
-					Kydo::Vertex { 256 / 2 + 256, 384, },
-					Kydo::Vertex { 128 / 2 + 256, 128, },
-					Kydo::Vertex { 384 / 2 + 256, 128, },
-				});
+			std::srand(std::time(NULL));
 			while (wnd.IsAlive() && renderer->IsAlive())
 			{
+				UINT x0 = std::rand() % 512, x1 = std::rand() % 512, x2 = std::rand() % 512;
+				UINT y0 = std::rand() % 512, y1 = std::rand() % 512, y2 = std::rand() % 512;
+				Kydo::Vertex x = { x0, y0, };
+				Kydo::Vertex y = { x1, y1, };
+				Kydo::Vertex z = { x2, y2, };
+				Kydo::Triangle tri = { x, y, z, };
+				printf("%i, %i; %i, %i; %i, %i\n", x0, y0, x1, y1, x2, y2);
+				renderer->Render(tri);
 				wnd.Update();
 				wnd.Render(renderer);
 			}
