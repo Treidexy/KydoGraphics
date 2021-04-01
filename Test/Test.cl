@@ -21,5 +21,5 @@ uint Hash(uint n)
 kernel void Draw(global uint *pixels)
 {
 	size_t id = get_global_id(0);
-	pixels[id] = Hash(id);
+	pixels[id] = 0xFF;
 }

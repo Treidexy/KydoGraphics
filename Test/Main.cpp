@@ -15,7 +15,7 @@ int main()
 		fclose(fs);
 	}
 
-	Kydo::Window wnd(L"Kydo Test");
+	Kydo::Window wnd(L"Kydo Test", 512, 512);
 	auto renderer = Kydo::Renderer::Create(wnd, src);
 	wnd.Show();
 	while (wnd.IsAlive() && renderer->IsAlive())

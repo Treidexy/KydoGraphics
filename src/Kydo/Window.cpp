@@ -19,7 +19,7 @@ namespace Kydo
 		case WM_PAINT:
 			if (Instance->pixels && Instance->renderer)
 			{
-				memcpy(Instance->pixels, ((CLRenderer *)Instance->renderer)->Pixels, Instance->width * Instance->height * sizeof(COLORREF));
+				//memcpy(Instance->pixels, ((CLRenderer *)Instance->renderer)->Pixels, Instance->width * Instance->height * sizeof(COLORREF));
 
 				//memset(Instance->pixels, 0xFF, Instance->width * Instance->height * sizeof(COLORREF));
 
@@ -36,7 +36,7 @@ namespace Kydo
 	}
 
 	Window::Window(PCWSTR title, LONG w, LONG h, PCWSTR className, HMODULE mod)
-		: module(mod), title(title), className(className), width(w), height(h)
+		: module(mod), title(title), className(className), width(w), height(h), nPixels((SIZE_T)width * (SIZE_T)height)
 	{
 		Instance = this;
 
@@ -132,4 +132,7 @@ namespace Kydo
 
 	COLORREF *Window::GetPixels()
 	{ return pixels; }
+
+	SIZE_T Window::GetPixelCount()
+	{ return nPixels; }
 }

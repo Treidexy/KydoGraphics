@@ -33,9 +33,7 @@ namespace Kydo
 		context = cl::Context(device, NULL, NULL, NULL, &ec); CHECK_EC(ec);
 		q = cl::CommandQueue(context, device, cl::QueueProperties::None, &ec); CHECK_EC(ec);
 
-		pixels = new COLORREF[(cl::size_type)wnd->Width * (cl::size_type)wnd->Height];
-		memset(pixels, 0, (cl::size_type)wnd->Width * (cl::size_type)wnd->Height * sizeof(COLORREF));
-		pixelMem = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, (cl::size_type)wnd->Width * (cl::size_type)wnd->Height * sizeof(COLORREF), (void *)pixels, &ec); CHECK_EC(ec);
+		pixelMem = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, wnd->PixelCount * sizeof(COLORREF), (void *)wnd->Pixels, &ec); CHECK_EC(ec);
 
 		prog = cl::Program(context, src, true, &ec); CHECK_EC(ec);
 		if (ec == CL_BUILD_PROGRAM_FAILURE)
@@ -53,15 +51,16 @@ namespace Kydo
 	CLRenderer::~CLRenderer()
 	{
 		q.finish();
-		delete pixels;
 	}
 
 
 	void CLRenderer::Draw()
 	{
+		//memset(wnd->Pixels, 0xFF, (cl::size_type)wnd->Width * (cl::size_type)wnd->Height * sizeof(COLORREF));
+
 		cl_int ec;
 		ec = kernel.setArg(0, &pixelMem); CHECK_EC(ec);
-		ec = q.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange((cl::size_type)wnd->Width * (cl::size_type)wnd->Height)); CHECK_EC(ec);
+		ec = q.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(wnd->PixelCount)); CHECK_EC(ec);
 		ec = q.flush(); CHECK_EC(ec);
 	}
 
@@ -74,10 +73,6 @@ namespace Kydo
 
 	bool CLRenderer::IsDrawing()
 	{ return draw; }
-
-
-	COLORREF *CLRenderer::GetPixels()
-	{ return pixels; }
 
 	inline const char *clGetErrorString(cl_int ec)
 	{

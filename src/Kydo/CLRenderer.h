@@ -21,7 +21,6 @@ namespace Kydo
 		bool alive = true;
 		Window *wnd;
 		std::string src;
-		COLORREF *pixels;
 	public:
 		CLRenderer(Window &, std::string_view src);
 		~CLRenderer() override;
@@ -31,8 +30,5 @@ namespace Kydo
 
 		bool IsDrawing();
 		virtual bool IsAlive() override;
-
-		COLORREF *GetPixels();
-		KYDO_PROPERTY(get = GetPixels) COLORREF *Pixels;
 	};
 }
