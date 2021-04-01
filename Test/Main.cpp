@@ -23,17 +23,16 @@ int FindCommonDenominator(int x, int y)
 
 void DrawLine(COLORREF *pixels, const Kydo::Vertex &v0, const Kydo::Vertex &v1)
 {
-	const Kydo::Vertex &min = (v0.X < v1.X) ? v0 : v1;
-	const Kydo::Vertex &max = (v0.X > v1.X) ? v0 : v1;
+	const Kydo::Vertex &min = (v0.Y < v1.Y) ? v0 : v1;
+	const Kydo::Vertex &max = (v0.Y > v1.Y) ? v0 : v1;
 
 	UINT dx = max.X - min.X;
 	UINT dy = max.Y - min.Y;
 
-	for (UINT x = min.X; x < max.X; x++)
+	for (UINT y = min.Y; y < max.Y; y++)
 	{
-		UINT y = min.Y + dy * (x - min.X) / dx;
-
-		pixels[x + (511 - y) * 512] = 0x00FF00;
+		UINT x = min.X + dy * (y - min.Y) / dx;
+		pixels[x + (512 - y - titleBarHeight - 1) * 512] = 0x00FF00;
 	}
 }
 
