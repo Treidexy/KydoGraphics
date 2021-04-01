@@ -29,10 +29,20 @@ void DrawLine(COLORREF *pixels, const Kydo::Vertex &v0, const Kydo::Vertex &v1)
 	UINT dx = max.X - min.X;
 	UINT dy = max.Y - min.Y;
 
-	for (UINT y = min.Y; y < max.Y; y++)
+	if (dy == 0)
+		dy = 1;
+
+	INT tror = (dx * min.Y) / dy;
+	INT b = min.X - tror;
+
+	for (UINT y = min.Y; y <= max.Y; y++)
 	{
-		UINT x = min.X + dy * (y - min.Y) / dx;
-		pixels[x + (512 - y - titleBarHeight - 1) * 512] = 0x00FF00;
+		UINT ror = (dx * y) / dy;
+		
+		UINT minX = ror + b;
+		UINT maxX = ror + b;
+		for (UINT x = minX; x <= maxX; x++)
+			pixels[x + (512 - y - titleBarHeight - 1) * 512] = 0x00FF00;
 	}
 }
 
