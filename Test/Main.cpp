@@ -26,27 +26,20 @@ int main()
 			std::srand(std::time(NULL));
 			UINT x0 = std::rand() % 512, x1 = std::rand() % 512, x2 = std::rand() % 512;
 			UINT y0 = std::rand() % 512, y1 = std::rand() % 512, y2 = std::rand() % 512;
-			Kydo::Vertex x = { x0, y0, };
-			Kydo::Vertex y = { x1, y1, };
-			Kydo::Vertex z = { x2, y2, };
+			Kydo::Vertex x = { 128, 348, };
+			Kydo::Vertex y = { 256, 128, };
+			Kydo::Vertex z = { 384, 256, };
 			Kydo::Triangle tri = { x, y, z, };
 			renderer->Render(tri);
+			wnd.Render(renderer);
 			while (wnd.IsAlive() && renderer->IsAlive())
 			{
-				UINT x0 = std::rand() % 512, x1 = std::rand() % 512, x2 = std::rand() % 512;
-				UINT y0 = std::rand() % 512, y1 = std::rand() % 512, y2 = std::rand() % 512;
-				Kydo::Vertex x = { x0, y0, };
-				Kydo::Vertex y = { x1, y1, };
-				Kydo::Vertex z = { x2, y2, };
-				Kydo::Triangle tri = { x, y, z, };
-				renderer->Render(tri);
-
 				wnd.Update();
-				wnd.Clear();
-				wnd.Render(renderer);
+				//wnd.Clear();
+				//wnd.Render(renderer);
 
-				using namespace std::chrono_literals;
-				std::this_thread::sleep_for(500ms);
+				//using namespace std::chrono_literals;
+				//std::this_thread::sleep_for(50ms);
 			}
 			wnd.Destroy();
 		}
