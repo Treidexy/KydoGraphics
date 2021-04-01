@@ -17,18 +17,15 @@ int main()
 
 	Kydo::Window wnd(L"Kydo Test");
 	auto renderer = Kydo::Renderer::Create(wnd, src);
-	if (renderer->IsAlive())
+	wnd.Show();
+	while (wnd.IsAlive() && renderer->IsAlive())
 	{
-		wnd.Show();
-		while (wnd.IsAlive())
-		{
-			renderer->Render();
+		renderer->Render();
 
-			wnd.Update();
-			wnd.Render(renderer);
-		}
-		wnd.Destroy();
+		wnd.Update();
+		wnd.Render(renderer);
 	}
+	wnd.Destroy();
 
 	std::system("pause");
 }

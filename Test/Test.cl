@@ -18,7 +18,7 @@ uint Hash(uint n)
 	return n;
 }
 
-kernel void Draw(global uint *pixels, global Point *points)
+kernel void Draw(global uint *pixels)
 {
 	size_t id = get_global_id(0);
 	pixels[id] = Hash(id);

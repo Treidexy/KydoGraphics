@@ -50,9 +50,10 @@ namespace Kydo
 
 	void CLRenderer::Draw()
 	{
-		kernel.setArg(0, pixelMem);
-		q.enqueueNDRangeKernel(kernel, 0, cl::NDRange((cl::size_type)wnd->Width * (cl::size_type)wnd->Height));
-		q.flush();
+		cl_int ec;
+		ec = kernel.setArg(0, &pixelMem); CHECK_EC(ec);
+		ec = q.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange((cl::size_type)wnd->Width * (cl::size_type)wnd->Height)); CHECK_EC(ec);
+		ec = q.flush(); CHECK_EC(ec);
 	}
 
 	void CLRenderer::Render()
