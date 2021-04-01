@@ -55,11 +55,42 @@ kernel void Draw(global uint *pixels, global Triangle *tris, uint titleBarHeight
 	float dy = verts[2].Y - verts[0].Y;
 	for (uint y = 0; y < dy; y++)
 	{
-		uint x0 = Lerp(verts[1].X, verts[0].X, (float)y / dy);
-		uint x1 = Lerp(verts[2].X, verts[0].X, (float)y / dy);
+		uint min, max;
 		
-		uint min = Min(x0, x1);
-		uint max = Max(x0, x1);
+		if (verts[0].Y == verts[1].Y)
+		{
+			uint x0 = Lerp(verts[2].X, verts[0].X, (float)y / dy);
+			uint x1 = Lerp(verts[2].X, verts[1].X, (float)y / dy);
+			
+			min = Min(x0, x1);
+			max = Max(x0, x1);
+		}
+		else if (verts[0].Y == verts[2].Y)
+		{
+			uint x0 = Lerp(verts[1].X, verts[0].X, (float)y / dy);
+			uint x1 = Lerp(verts[2].X, verts[1].X, (float)y / dy);
+			
+			min = Min(x0, x1);
+			max = Max(x0, x1);
+		}
+		else if (verts[2].Y == verts[1].Y)
+		{
+			uint x0 = Lerp(verts[1].X, verts[0].X, (float)y / dy);
+			uint x1 = Lerp(verts[2].X, verts[0].X, (float)y / dy);
+			
+			min = Min(x0, x1);
+			max = Max(x0, x1);
+		}
+		else
+		{
+			uint x0 = Lerp(verts[1].X, verts[0].X, (float)y / dy);
+			uint x1 = Lerp(verts[2].X, verts[0].X, (float)y / dy);
+			uint x2 = Lerp(verts[2].X, verts[1].X, (float)y / dy);
+			
+			min = Min(x0, Min(x1, x2));
+			max = Max(x0, Max(x1, x2));
+		}
+		
 		for (uint x = min; x < max; x++)
 			pixels[x + (y + verts[0].Y + titleBarHeight) * 512] = 0x00FF00;
 	}

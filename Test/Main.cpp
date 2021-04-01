@@ -24,9 +24,15 @@ int main()
 			wnd.Show();
 			renderer->Render(Kydo::Triangle
 				{
-					Kydo::Vertex { 256, 128, },
-					Kydo::Vertex { 128, 384, },
-					Kydo::Vertex { 384, 384, },
+					Kydo::Vertex { 256 / 2, 128, },
+					Kydo::Vertex { 128 / 2, 384, },
+					Kydo::Vertex { 384 / 2, 384, },
+				});
+			renderer->Render(Kydo::Triangle
+				{
+					Kydo::Vertex { 256 / 2 + 256, 384, },
+					Kydo::Vertex { 128 / 2 + 256, 128, },
+					Kydo::Vertex { 384 / 2 + 256, 128, },
 				});
 			while (wnd.IsAlive() && renderer->IsAlive())
 			{
