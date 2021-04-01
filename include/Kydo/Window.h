@@ -2,6 +2,7 @@
 
 #define NOMINMAX
 #include <Windows.h>
+#include <thread>
 #include <memory>
 #include "Kydo/Core.h"
 
@@ -13,6 +14,8 @@ namespace Kydo
 	{
 	private:
 		static Window *Instance;
+		bool waiting = false;
+		std::thread wndThrd;
 
 		HDC dc, bmpDc;
 		MSG msg {};

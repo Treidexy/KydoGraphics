@@ -36,6 +36,9 @@ int main()
 				wnd.Update();
 				wnd.Clear();
 				wnd.Render(renderer);
+
+				using namespace std::chrono_literals;
+				std::this_thread::sleep_for(50ms);
 			}
 			wnd.Destroy();
 		}

@@ -72,7 +72,11 @@ namespace Kydo
 	}
 
 	Window::~Window()
-	{ Destroy(); }
+	{
+		if (wndThrd.joinable())
+			wndThrd.join();
+		Destroy();
+	}
 
 
 	void Window::Show()
@@ -84,11 +88,17 @@ namespace Kydo
 
 	void Window::Update()
 	{
-		if (GetMessageW(&msg, handle, 0, 0))
-		{
-			TranslateMessage(&msg);
-			DispatchMessageW(&msg);
-		}
+		if (!waiting)
+			wndThrd = std::thread([this]()
+				{
+					if (GetMessageW(&msg, handle, 0, 0))
+					{
+						TranslateMessage(&msg);
+						DispatchMessageW(&msg);
+					}
+					waiting = false;
+				});
+		waiting = true;
 	}
 
 	void Window::Clear()
