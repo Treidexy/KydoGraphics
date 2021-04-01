@@ -5,28 +5,15 @@
 
 static UINT titleBarHeight = GetSystemMetrics(SM_CYCAPTION);
 
-int FindCommonDenominator(int x, int y)
-{
-	if (x == 0 || y == 0)
-		return 1;
-
-	x = x < 0 ? -x : x;
-	y = y < 0 ? -y : y;
-
-	while (x != y)
-		if (x > y)
-			x -= y;
-		else
-			y -= x;
-	return x;
-}
+static float Lerp(float x, float y, float t)
+{ return x + t * (y - x); }
 
 void DrawLine(COLORREF *pixels, const Kydo::Vertex &v0, const Kydo::Vertex &v1)
 {
 	const Kydo::Vertex &min = (v0.Y < v1.Y) ? v0 : v1;
 	const Kydo::Vertex &max = (v0.Y < v1.Y) ? v1 : v0;
 
-	INT dx = min.X < max.X ? max.X - min.X : min.X - max.X;
+	INT dx = max.X - min.X;
 	INT dy = max.Y - min.Y;
 
 	if (dx == 0)
@@ -40,14 +27,43 @@ void DrawLine(COLORREF *pixels, const Kydo::Vertex &v0, const Kydo::Vertex &v1)
 	for (UINT y = min.Y; y <= max.Y; y++)
 	{
 		INT ror = (dx * y) / dy;
-		INT minX = ror + b;
-		INT iror = (dx * (minX)) / dy;
-		INT maxX = iror + b;
+		INT x = ror + b;
 
+		pixels[x + (512 - y - titleBarHeight - 1) * 512] = 0x00FF00;
+	}
+}
 
-		std::printf("%i, %i\n", minX, maxX);
-		//for (UINT x = minX; x <= maxX; x++)
-		//	pixels[x + (512 - y - titleBarHeight - 1) * 512] = 0x00FF00;
+void DrawTriangle(COLORREF *pixels, const Kydo::Triangle &tri)
+{
+	Kydo::Rect bounds
+	{
+		std::min({ tri.Vertices[0].X, tri.Vertices[1].X, tri.Vertices[2].X }),
+		std::min({ tri.Vertices[0].Y, tri.Vertices[1].Y, tri.Vertices[2].Y }),
+		std::max({ tri.Vertices[0].X, tri.Vertices[1].X, tri.Vertices[2].X }),
+		std::max({ tri.Vertices[0].Y, tri.Vertices[1].Y, tri.Vertices[2].Y }),
+	};
+
+	for (UINT y = bounds.Top; y < bounds.Bottom; y++)
+	{
+		//float y1 = Lerp(tri.Vertices[0].Y, tri.Vertices[1].Y, y - bounds.Top);
+		//float y2 = Lerp(tri.Vertices[1].Y, tri.Vertices[2].Y, y - bounds.Top);
+		//float y3 = Lerp(tri.Vertices[2].Y, tri.Vertices[0].Y, y - bounds.Top);
+		float yr = float(y - bounds.Top) / float(bounds.Bottom - bounds.Top);
+
+		float minX =  INFINITY;
+		float maxX = -INFINITY;
+		for (float rx = 0; rx < bounds.Right - bounds.Left; rx++)
+		{
+			float x1 = Lerp(tri.Vertices[0].X, tri.Vertices[1].X, yr);
+			float x2 = Lerp(tri.Vertices[1].X, tri.Vertices[2].X, yr);
+			float x3 = Lerp(tri.Vertices[2].X, tri.Vertices[0].X, yr);
+
+			minX = std::min({ minX, x1, x2, x3 });
+			maxX = std::max({ maxX, x1, x2, x3 });
+		}
+
+		for (UINT x = minX; x < maxX; x++)
+			pixels[x + y * 512] = 0x00FF00;
 	}
 }
 
@@ -71,8 +87,14 @@ int main()
 		//{
 			wnd.Show();
 			//DrawLine(wnd.Pixels, { 256, 128 }, { 128, 384 });
-			DrawLine(wnd.Pixels, { 128, 384 }, { 384, 384 });
+			//DrawLine(wnd.Pixels, { 128, 384 }, { 384, 384 });
 			//DrawLine(wnd.Pixels, { 384, 384 }, { 256, 128 });
+			DrawTriangle(wnd.Pixels, Kydo::Triangle
+				{
+					Kydo::Vertex { 256, 128, },
+					Kydo::Vertex { 128, 384, },
+					Kydo::Vertex { 384, 384, },
+				});
 			//renderer->Render(
 			//	{
 			//		256, 128, 384,
