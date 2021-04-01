@@ -55,7 +55,7 @@ namespace Kydo
 		triBoundsMem = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, sizeof(Rect), &triBounds, &ec); CHECK_EC(ec);
 		ec = kernel.setArg(0, pixelMem); CHECK_EC(ec);
 		ec = kernel.setArg(1, triMem); CHECK_EC(ec);
-		ec = kernel.setArg(1, triBoundsMem); CHECK_EC(ec);
+		ec = kernel.setArg(2, triBoundsMem); CHECK_EC(ec);
 	}
 
 	CLRenderer::~CLRenderer()
@@ -68,10 +68,10 @@ namespace Kydo
 		for (const auto &tri : tris)
 		{
 			this->tri = tri;
-			triBounds.Left = std::min(tri.X[0], std::min(tri.X[1], tri.X[2]));
+			//triBounds.Left = std::min(tri.X[0], std::min(tri.X[1], tri.X[2]));
 			triBounds.Top  = std::min(tri.Y[0], std::min(tri.Y[1], tri.Y[2]));
 
-			triBounds.Right  = std::max(tri.X[0], std::max(tri.X[1], tri.X[2]));
+			//triBounds.Right  = std::max(tri.X[0], std::max(tri.X[1], tri.X[2]));
 			triBounds.Bottom = std::max(tri.Y[0], std::max(tri.Y[1], tri.Y[2]));
 			ec = q.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(wnd->Height)); CHECK_EC(ec);
 			ec = q.flush(); CHECK_EC(ec);

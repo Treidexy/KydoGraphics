@@ -28,11 +28,16 @@ uint Hash(uint n)
 	return n;
 }
 
-kernel void Draw(global uint *pixels, global Triangle *tris, global Rect *bounds)
+kernel void Draw(global uint *pixels, global Triangle *tri, global Rect *bounds)
 {
 	uint y = get_global_id(0);
+	if (y < bounds->Top || y > bounds->Bottom)
+		return;
 
-	for (uint x = bounds.Left; x <= bounds.Right; x++)
-		if (y >= bounds.Top && y <= bounds.Bottom)
-			pixels[id] = 0x00FF00;
+	bounds->Left = min(tri->X[0], min(tri->X[1], tri->X[2]));
+	bounds->Right = max(tri->X[0], max(tri->X[1], tri->X[2]));
+	for (uint x = bounds->Left; x <= bounds->Right; x++)
+	{
+		pixels[x + y * 512] = 0x00FF00;
+	}
 }
