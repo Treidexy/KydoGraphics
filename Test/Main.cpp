@@ -63,7 +63,7 @@ void DrawTriangle(COLORREF *pixels, const Kydo::Triangle &tri)
 		}
 
 		for (UINT x = minX; x < maxX; x++)
-			pixels[x + y * 512] = 0x00FF00;
+			pixels[x + (511 - y + titleBarHeight) * 512] = 0x00FF00;
 	}
 }
 
