@@ -75,7 +75,7 @@ int main()
 			while (wnd.IsAlive() && renderer->IsAlive())
 			{
 				wnd.Update();
-				wnd.Render();
+				wnd.Render(renderer);
 			}
 			wnd.Destroy();
 		}
