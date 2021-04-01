@@ -30,7 +30,7 @@ kernel void Draw(global uint *pixels, global Triangle *tris, global uint *nTris)
 		float minY = min(min(tris[i].Y[0], tris[i].Y[1]), tris[i].Y[2]);
 		float maxY = max(max(tris[i].Y[0], tris[i].Y[1]), tris[i].Y[2]);
 
-		if (x >= minX && x <= minX)
+		if (x >= minX && x <= maxX)
 			if (y >= minY && y <= maxY)
 				pixels[id] = 0x00FF00;
 	}
