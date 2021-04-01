@@ -75,8 +75,8 @@ void DrawTopFlat(global uint *pixels, global Triangle *tri)
 kernel void Draw(global uint *pixels, global Triangle *tris, global Rect *bounds)
 {
 	uint id = get_global_id(0);
-	//DrawTopFlat(pixels, &tris[id]);
-	for (uint y = bounds->Top; y <= bounds->Bottom; y++)
-		for (uint x = bounds->Left; x <= bounds->Right; x++)
-			pixels[x + y * 512] = 0x00FF00;
+	DrawTopFlat(pixels, &tris[id]);
+	// for (uint y = bounds->Top; y <= bounds->Bottom; y++)
+	// 	for (uint x = bounds->Left; x <= bounds->Right; x++)
+	// 		pixels[x + y * 512] = 0x00FF00;
 }
