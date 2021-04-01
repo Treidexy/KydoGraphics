@@ -67,29 +67,16 @@ namespace Kydo
 
 		cl_int ec;
 		triMem = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, tris.size() * sizeof(Triangle), tris.data(), &ec); CHECK_EC(ec);
-		triBoundsMem = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, triBounds.size() * sizeof(Rect), triBounds.data(), &ec); CHECK_EC(ec);
-
 		ec = kernel.setArg(1, triMem); CHECK_EC(ec);
-		ec = kernel.setArg(2, triBoundsMem); CHECK_EC(ec);
 		
 		ec = q.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(tris.size())); CHECK_EC(ec);
 		ec = q.flush(); CHECK_EC(ec);
 
 		tris.clear();
-		triBounds.clear();
 	}
 
 	void CLRenderer::Render(const Triangle &tri)
-	{
-		//tris.push_back(tri);
-		//triBounds.push_back(
-		//	{
-		//		std::min({ tri.X[0], tri.X[1], tri.X[2] }),
-		//		std::min({ tri.Y[0], tri.Y[1], tri.Y[2] }),
-		//		std::max({ tri.X[0], tri.X[1], tri.X[2] }),
-		//		std::max({ tri.Y[0], tri.Y[1], tri.Y[2] }),
-		//	});
-	}
+	{ tris.push_back(tri); }
 
 
 	bool CLRenderer::IsAlive()

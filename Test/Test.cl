@@ -30,7 +30,7 @@ static float Min(float x, float y)
 static float Max(float x, float y)
 { return x > y ? x : y; }
 
-kernel void Draw(global uint *pixels, global Triangle *tris, global Rect *bounds)
+kernel void Draw(global uint *pixels, global Triangle *tris)
 {
 	uint id = get_global_id(0);
 	Vertex verts[3] =
