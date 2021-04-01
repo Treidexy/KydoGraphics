@@ -1,5 +1,7 @@
 #include "Kydo/CLRenderer.h"
 
+#include <algorithm>
+
 namespace Kydo
 {
 	inline const char *clGetErrorString(cl_int ec);
@@ -72,10 +74,22 @@ namespace Kydo
 		
 		ec = q.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(tris.size())); CHECK_EC(ec);
 		ec = q.flush(); CHECK_EC(ec);
+
+		tris.clear();
+		triBounds.clear();
 	}
 
 	void CLRenderer::Render(const Triangle &tri)
-	{ tris.push_back(tri); }
+	{
+		tris.push_back(tri);
+		triBounds.push_back(
+			{
+				std::min({ tri.X[0], tri.X[1], tri.X[2] }),
+				std::min({ tri.Y[0], tri.Y[1], tri.Y[2] }),
+				std::max({ tri.X[0], tri.X[1], tri.X[2] }),
+				std::max({ tri.Y[0], tri.Y[1], tri.Y[2] }),
+			});
+	}
 
 
 	bool CLRenderer::IsAlive()
