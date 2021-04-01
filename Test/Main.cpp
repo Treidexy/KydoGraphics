@@ -5,22 +5,31 @@
 
 static UINT titleBarHeight = GetSystemMetrics(SM_CYCAPTION);
 
+using uint = UINT;
+
 static float Lerp(float x, float y, float t)
 { return x + t * (y - x); }
 
+static float Min(float x, float y)
+{ return x < y ? x : y; }
+
+static float Max(float x, float y)
+{ return x > y ? x : y; }
+
 void DrawTriangle(COLORREF *pixels, const Kydo::Triangle &tri)
 {
-	Kydo::Vertex verts[] =
+	Kydo::Vertex verts[3] =
 	{
 		tri.Vertices[0],
 		tri.Vertices[1],
 		tri.Vertices[2],
 	};
 
+	// Sort the vertices from smallest to greatest (On Y-Axis)
 	Kydo::Vertex tmp;
-	for (UINT i = 0; i < 3; i++)
-		for (UINT j = 0; j < 3; j++)
-			if (verts[i].Y > verts[j].Y)
+	for (uint i = 0; i < 3; i++)
+		for (uint j = 0; j < 3; j++)
+			if (verts[i].Y < verts[j].Y)
 			{
 				// Do a little switch-a-roo
 				tmp = verts[i];
@@ -28,16 +37,16 @@ void DrawTriangle(COLORREF *pixels, const Kydo::Triangle &tri)
 				verts[j] = tmp;
 			}
 
-	UINT dy = verts[0].Y - verts[2].Y;
-	for (UINT y = 0; y < dy; y++)
+	float dy = verts[2].Y - verts[0].Y;
+	for (uint y = 0; y < dy; y++)
 	{
-		UINT x1 = Lerp(verts[1].X, verts[2].X, float(y) / dy);
-		UINT x2 = Lerp(verts[0].X, verts[2].X, float(y) / dy);
+		uint x0 = Lerp(verts[1].X, verts[0].X, (float)y / dy);
+		uint x1 = Lerp(verts[2].X, verts[0].X, (float)y / dy);
 
-		int min = std::min(x1, x2);
-		int max = std::max(x1, x2);
-		for (UINT x = min; x < max; x++)
-			pixels[x + (y + verts[2].Y + titleBarHeight) * 512] = 0x00FF00;
+		uint min = Min(x0, x1);
+		uint max = Max(x0, x1);
+		for (uint x = min; x < max; x++)
+			pixels[x + (y + verts[0].Y + 23) * 512] = 0x00FF00;
 	}
 }
 

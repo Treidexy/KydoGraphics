@@ -61,6 +61,6 @@ kernel void Draw(global uint *pixels, global Triangle *tris)
 		uint min = Min(x0, x1);
 		uint max = Max(x0, x1);
 		for (uint x = min; x < max; x++)
-			pixels[x + (y + verts[2].Y + 23) * 512] = 0x00FF00;
+			pixels[x + (y + verts[0].Y + 23) * 512] = 0x00FF00;
 	}
 }
