@@ -162,7 +162,7 @@ kernel void Draw(global uint *pixels, global Triangle *tris, uint titleBarHeight
 			float a2 = Abs(((float)b->X - (float)x) * ((float)c->Y - (float)y) - ((float)c->X - (float)x) * ((float)b->Y - (float)y));
 			float a3 = Abs(((float)c->X - (float)x) * ((float)a->Y - (float)y) - ((float)a->X - (float)x) * ((float)c->Y - (float)y));
 
-			if (a1 + a2 + a3 == o)
+			if (a1 + a2 + a3 == o && (a1 < o / 2 && a2 < o / 2 && a3 < o / 2))
 				DrawPixel(pixels, x, y, 0xFFFFFF);
 		}
 	
