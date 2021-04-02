@@ -8,6 +8,9 @@ namespace Kydo
 
 	LRESULT CALLBACK Window::KydoWinProc(__in HWND wnd, __in UINT msg, __in WPARAM wParam, __in LPARAM lParam)
 	{
+		if (!Instance->alive)
+			return 0;
+
 		switch (msg)
 		{
 		case WM_CLOSE:
@@ -72,14 +75,25 @@ namespace Kydo
 
 
 	void Window::Show()
-	{ ShowWindowAsync(handle, TRUE); }
+	{
+		if (!alive)
+			return;
+		ShowWindowAsync(handle, TRUE);
+	}
 
 	void Window::Hide()
-	{ ShowWindowAsync(handle, FALSE); }
+	{
+		if (!alive)
+			return;
+		ShowWindowAsync(handle, FALSE);
+	}
 
 
 	void Window::Update()
 	{
+		if (!alive)
+			return;
+
 		if (PeekMessageW(&msg, handle, 0, 0, PM_REMOVE))
 		{
 			TranslateMessage(&msg);
@@ -88,13 +102,24 @@ namespace Kydo
 	}
 
 	void Window::Clear()
-	{ memset(pixels, 0, nPixels * sizeof(COLORREF)); }
+	{
+		if (!alive)
+			return;
+		memset(pixels, 0, nPixels * sizeof(COLORREF));
+	}
 
 	void Window::Render()
-	{ RedrawWindow(handle, NULL, NULL, RDW_INVALIDATE); }
+	{
+		if (!alive)
+			return;
+		RedrawWindow(handle, NULL, NULL, RDW_INVALIDATE);
+	}
 
 	void Window::Render(const std::unique_ptr<Renderer> &renderer)
 	{
+		if (!alive)
+			return;
+
 		CLRenderer *clRenderer = (CLRenderer *)renderer.get();
 		if (clRenderer->IsDrawing())
 			clRenderer->Draw();
