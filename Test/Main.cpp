@@ -7,29 +7,47 @@
 using uint = UINT;
 
 // https://github.com/tuliosouza99/rasterization
+void DrawPixel(COLORREF *pixels, const Kydo::Vertex &a)
+{
+	pixels[a.X + (a.Y + 23) * 512] = 0x00FF00;
+}
+
+void DrawLine(COLORREF *pixels, const Kydo::Vertex &a, const Kydo::Vertex &b)
+{
+	uint dx, dy, d, incrE, incrNe;
+	Kydo::Vertex newVert = a;
+	dx = std::abs(int(b.X - a.X));
+	dy = std::abs(int(b.Y - a.Y));
+	
+}
+
 void DrawTriangle(COLORREF *pixels, const Kydo::Triangle &tri)
 {
 	const Kydo::Vertex &a = tri.Vertices[0], &b = tri.Vertices[1], &c = tri.Vertices[2];
-	uint minX = std::min({ a.X, b.X, c.X });
-	uint maxX = std::max({ a.X, b.X, c.X });
+	DrawLine(pixels, a, b);
+	DrawLine(pixels, b, c);
+	DrawLine(pixels, c, a);
 
-	uint minY = std::min({ a.Y, b.Y, c.Y });
-	uint maxY = std::max({ a.Y, b.Y, c.Y });
+	//uint minX = std::min({ a.X, b.X, c.X });
+	//uint maxX = std::max({ a.X, b.X, c.X });
 
-	Kydo::Vertex eab { b.X - a.X, b.Y - a.Y };
-	Kydo::Vertex eac { c.X - a.X, c.Y - a.Y };
+	//uint minY = std::min({ a.Y, b.Y, c.Y });
+	//uint maxY = std::max({ a.Y, b.Y, c.Y });
 
-	for (uint y = minY; y <= maxY; y++)
-		for (uint x = minX; x <= maxX; x++)
-		{
-			Kydo::Vertex q(x - a.X, y - a.Y);
+	//Kydo::Vertex eab { b.X - a.X, b.Y - a.Y };
+	//Kydo::Vertex eac { c.X - a.X, c.Y - a.Y };
 
-			float s = float((q.X * eac.Y) - (eac.X * q.Y)) / float((eab.X * eac.Y) - (eac.X * eab.Y));
-			float t = float((eab.X * q.Y) - (q.X * eab.Y)) / float((eab.X * eac.Y) - (eac.X * eab.Y));
+	//for (uint y = minY; y <= maxY; y++)
+	//	for (uint x = minX; x <= maxX; x++)
+	//	{
+	//		Kydo::Vertex q(x - a.X, y - a.Y);
 
-			if (s >= 0 && t >= 0 && s + t <= 1)
-				pixels[x + (y + 23) * 512] = 0x00FF00;
-		}
+	//		float s = float((q.X * eac.Y) - (eac.X * q.Y)) / float((eab.X * eac.Y) - (eac.X * eab.Y));
+	//		float t = float((eab.X * q.Y) - (q.X * eab.Y)) / float((eab.X * eac.Y) - (eac.X * eab.Y));
+
+	//		if (s >= 0 && t >= 0 && s + t <= 1)
+	//			pixels[x + (y + 23) * 512] = 0x00FF00;
+	//	}
 }
 
 int main()
@@ -65,8 +83,8 @@ int main()
 				Kydo::Vertex y { x1, y1, };
 				Kydo::Vertex z { x2, y2, };
 				Kydo::Triangle tri { x, y, z, };
-				//DrawTriangle(wnd.Pixels, tri);
-				renderer->Render(tri);
+				DrawTriangle(wnd.Pixels, tri);
+				//renderer->Render(tri);
 				wnd.Render(renderer);
 
 				using namespace std::chrono_literals;
