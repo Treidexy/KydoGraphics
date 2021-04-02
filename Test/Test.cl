@@ -27,7 +27,114 @@ static uint Min(uint x, uint y)
 static uint Max(uint x, uint y)
 { return x > y ? x : y; }
 
+static float Abs(float x)
+{
+	*(int *)&x &= 0x7FFFFFFF;
+	return x;
+}
+
+static uchar Lerp(float x, float y, float t)
+{ return x + t * (y - x); }
+
+static uint Blend(uint x, uint y, float t)
+{
+	uint out = 0;
+	uint t0, t1;
+	
+	t0 = x >> 16 & 0xFF;
+	t1 = y >> 16 & 0xFF;
+	out |= Lerp(t0, t1, t) << 16;
+	
+	t0 = x >> 8 & 0xFF;
+	t1 = y >> 8 & 0xFF;
+	out |= Lerp(t0, t1, t) << 8;
+	
+	t0 = x >> 0 & 0xFF;
+	t1 = y >> 0 & 0xFF;
+	out |= Lerp(t0, t1, t) << 0;
+	
+	return out;
+}
+
+static void DrawPixel(global uint *pixels, uint x, uint y, uint col)
+{ pixels[x + y * 512] = col; }
+
+static void DrawVertex(global uint *pixels, Vertex *vert)
+{ DrawPixel(pixels, vert->X, vert->Y, vert->Color); }
+
 // Taken from -> https://github.com/tuliosouza99/rasterization
+void DrawLine(global uint *pixels, global Vertex *a, global Vertex *b)
+{
+	int dx, dy, d, incrE, incrNe, step;
+	Vertex newVert = *a;
+	dx = Abs((int)(b->X - a->X));
+	dy = Abs((int)(b->Y - a->Y));
+	
+	float finalStep = sqrt((float)(dx * dx + dy * dy));
+	step = 0;
+
+	DrawVertex(pixels, &newVert);
+	if (dx >= dy)
+	{
+		incrE = 2 * dy;
+		incrNe = 2 * (dy - dx);
+
+		d = 2 * dy - dx;
+		while (newVert.X != b->X)
+		{
+			if (d <= 0)
+				d += incrE;
+			else
+			{
+				d += incrNe;
+				if (b->Y >= a->Y)
+					newVert.Y++;
+				else
+					newVert.Y--;
+			}
+
+			if (b->X >= a->X)
+				newVert.X++;
+			else
+				newVert.X--;
+
+			newVert.Color = Blend(a->Color, b->Color, (float)step / (float)finalStep);
+			DrawVertex(pixels, &newVert);
+			step++;
+		}
+	}
+	else
+	{
+		incrE = 2 * dx;
+		incrNe = 2 * (dx - dy);
+
+		d = 2 * (dx - dy);
+		while (newVert.Y != b->Y)
+		{
+			if (d <= 0)
+				d += incrE;
+			else
+			{
+				d += incrNe;
+				if (b->X >= a->X)
+					newVert.X++;
+				else
+					newVert.X--;
+			}
+
+			if (b->Y >= a->Y)
+				newVert.Y++;
+			else
+				newVert.Y--;
+
+			newVert.Color = Blend(a->Color, b->Color, (float)step / (float)finalStep);
+			DrawVertex(pixels, &newVert);
+			step++;
+		}
+	}
+}
+
+// Taken from -> http://www.jeffreythompson.org/collision-detection/tri-point.php
 kernel void Draw(global uint *pixels, global Triangle *tris, uint titleBarHeight)
 {
 	uint id = get_global_id(0);
@@ -39,20 +146,26 @@ kernel void Draw(global uint *pixels, global Triangle *tris, uint titleBarHeight
 	uint minY = Min(a->Y, Min(b->Y, c->Y));
 	uint maxY = Max(a->Y, Max(b->Y, c->Y));
 	
-	// Edge for a/b & a/c
-	Vertex *eab = &(Vertex) { b->X - a->X, b->Y - a->Y };
-	Vertex *eac = &(Vertex) { c->X - a->X, c->Y - a->Y };
-	
-	for (uint y = minY; y < maxY; y++)
-		for (uint x = minX; x < maxX; x++)
+	float o = Abs(((float)b->X - (float)a->X) * ((float)c->Y - (float)a->Y) - ((float)c->X -(float)a->X) * ((float)b->Y - (float)a->Y));
+	for (uint y = minY; y <= maxY; y++)
+		for (uint x = minX; x <= maxX; x++)
 		{
-			Vertex *q = &(Vertex) { x - a->X, y - a->Y };
-			
-			// Math
-			float s = (float)((q->X * eac->Y) - (eac->X * q->Y)) / (float)((eab->X * eac->Y) - (eac->X * eab->Y));
-			float t = (float)((eab->X * q->Y) - (q->X * eab->Y)) / (float)((eab->X * eac->Y) - (eac->X * eab->Y));
-			
-			if (s >= 0 && t >= 0 && s + t <= 1)
-				pixels[x + (y + titleBarHeight) * 512] = 0x00FF00;
+			float a1 = Abs(((float)a->X - (float)x) * ((float)b->Y - (float)y) - ((float)b->X - (float)x) * ((float)a->Y - (float)y));
+			float a2 = Abs(((float)b->X - (float)x) * ((float)c->Y - (float)y) - ((float)c->X - (float)x) * ((float)b->Y - (float)y));
+			float a3 = Abs(((float)c->X - (float)x) * ((float)a->Y - (float)y) - ((float)a->X - (float)x) * ((float)c->Y - (float)y));
+
+			if (a1 + a2 + a3 == o)
+				DrawPixel(pixels, x, y, 0xFFFFFF);
 		}
+	
+	DrawLine(pixels, a, b);
+	DrawLine(pixels, b, c);
+	DrawLine(pixels, c, a);
+}
+
+kernel void Clear(global uint *pixels, uint col)
+{
+	uint y = get_global_id(0);
+	for (uint x = 0; x < 512; x++)
+		pixels[x + y * 512] = col;
 }

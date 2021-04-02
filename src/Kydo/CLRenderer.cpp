@@ -53,15 +53,26 @@ namespace Kydo
 		}
 		CHECK_EC(ec);
 
-		kernel = cl::Kernel(prog, "Draw", &ec); CHECK_EC(ec);
 		pixelMem = cl::Buffer(context, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, wnd->PixelCount * sizeof(COLORREF), wnd->Pixels, &ec); CHECK_EC(ec);
-		ec = kernel.setArg(0, pixelMem); CHECK_EC(ec);
-		ec = kernel.setArg(2, titleBarHeight); CHECK_EC(ec);
+		clearKernel = cl::Kernel(prog, "Clear", &ec); CHECK_EC(ec);
+		ec = clearKernel.setArg(0, pixelMem); CHECK_EC(ec);
+		drawKernel = cl::Kernel(prog, "Draw", &ec); CHECK_EC(ec);
+		ec = drawKernel.setArg(0, pixelMem); CHECK_EC(ec);
+		ec = drawKernel.setArg(2, titleBarHeight); CHECK_EC(ec);
 	}
 
 	CLRenderer::~CLRenderer()
 	{ std::puts("Finishing all calls..."); }
 
+
+	void CLRenderer::Clear(COLORREF col)
+	{
+		cl_int ec;
+		ec = clearKernel.setArg(1, col); CHECK_EC(ec);
+
+		ec = q.enqueueNDRangeKernel(clearKernel, cl::NullRange, cl::NDRange(wnd->Height)); CHECK_EC(ec);
+		ec = q.flush(); CHECK_EC(ec);
+	}
 
 	void CLRenderer::Draw()
 	{
@@ -70,9 +81,9 @@ namespace Kydo
 
 		cl_int ec;
 		triMem = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, tris.size() * sizeof(Triangle), tris.data(), &ec); CHECK_EC(ec);
-		ec = kernel.setArg(1, triMem); CHECK_EC(ec);
+		ec = drawKernel.setArg(1, triMem); CHECK_EC(ec);
 		
-		ec = q.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(tris.size())); CHECK_EC(ec);
+		ec = q.enqueueNDRangeKernel(drawKernel, cl::NullRange, cl::NDRange(tris.size())); CHECK_EC(ec);
 		ec = q.flush(); CHECK_EC(ec);
 
 		tris.clear();

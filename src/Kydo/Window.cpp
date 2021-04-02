@@ -104,10 +104,12 @@ namespace Kydo
 		}
 	}
 
-	void Window::Clear()
+	void Window::Clear(const std::unique_ptr<Renderer> &renderer)
 	{
 		if (!alive)
 			return;
+		CLRenderer *clRenderer = (CLRenderer *)renderer.get();
+		clRenderer->Clear(0x404040);
 		memset(pixels, 0, nPixels * sizeof(COLORREF));
 	}
 

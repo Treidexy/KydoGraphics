@@ -13,9 +13,10 @@ namespace Kydo
 		cl::Context context;
 		cl::CommandQueue q;
 		cl::Buffer pixelMem;
-		cl::Buffer triMem;
 		cl::Program prog;
-		cl::Kernel kernel;
+		cl::Kernel clearKernel;
+		cl::Kernel drawKernel;
+		cl::Buffer triMem;
 
 		bool alive = true;
 		Window *wnd;
@@ -25,6 +26,7 @@ namespace Kydo
 		CLRenderer(Window &, std::string_view src);
 		~CLRenderer() override;
 
+		void Clear(COLORREF);
 		void Draw();
 		virtual void Render(const Triangle &) override;
 
