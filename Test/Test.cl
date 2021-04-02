@@ -21,83 +21,38 @@ struct Rect
 	uint Bottom;
 };
 
-static float Lerp(float x, float y, float t)
-{ return x + t * (y - x); }
-
-static float Min(float x, float y)
+static uint Min(uint x, uint y)
 { return x < y ? x : y; }
 
-static float Max(float x, float y)
+static uint Max(uint x, uint y)
 { return x > y ? x : y; }
 
+// Taken from -> https://github.com/tuliosouza99/rasterization
 kernel void Draw(global uint *pixels, global Triangle *tris, uint titleBarHeight)
 {
 	uint id = get_global_id(0);
-	Vertex verts[3] =
-	{
-		tris[id].Vertices[0],
-		tris[id].Vertices[1],
-		tris[id].Vertices[2],
-	};
+	global Vertex *a = &tris[id].Vertices[0], *b = &tris[id].Vertices[1], *c = &tris[id].Vertices[2];
 	
-	// Sort the vertices from smallest to greatest (On Y-Axis)
-	Vertex tmp;
-	for (uint i = 0; i < 3; i++)
-		for (uint j = 0; j < 3; j++)
-			if (verts[i].Y < verts[j].Y)
-			{
-				// Do a little switch-a-roo
-				tmp = verts[i];
-				verts[i] = verts[j];
-				verts[j] = tmp;
-			}
-			
-	// Get the height of the triangle
-	float height = verts[2].Y - verts[0].Y;
+	uint minX = Min(a->X, Min(b->X, c->X));
+	uint maxX = Max(a->X, Max(b->X, c->X));
 	
-	// Scan through each line of the triangle
-	for (uint y = 0; y < height; y++)
-	{
-		// Store the min and max, x coords in this scanline
-		uint min, max;
-		
-		// Make sure you are not cheating...
-		if (verts[0].Y == verts[1].Y)
+	uint minY = Min(a->Y, Min(b->Y, c->Y));
+	uint maxY = Max(a->Y, Max(b->Y, c->Y));
+	
+	// Edge for a/b & a/c
+	Vertex *eab = &(Vertex) { b->X - a->X, b->Y - a->Y };
+	Vertex *eac = &(Vertex) { c->X - a->X, c->Y - a->Y };
+	
+	for (uint y = minY; y < maxY; y++)
+		for (uint x = minX; x < maxX; x++)
 		{
-			uint x0 = Lerp(verts[0].X, verts[2].X, (float)y / height);
-			uint x1 = Lerp(verts[1].X, verts[2].X, (float)y / height);
+			Vertex *q = &(Vertex) { x - a->X, y - a->Y };
 			
-			min = Min(x0, x1);
-			max = Max(x0, x1);
+			// Math
+			float s = (float)((q->X * eac->Y) - (eac->X * q->Y)) / (float)((eab->X * eac->Y) - (eac->X * eab->Y));
+			float t = (float)((eab->X * q->Y) - (q->X * eab->Y)) / (float)((eab->X * eac->Y) - (eac->X * eab->Y));
+			
+			if (s >= 0 && t >= 0 && s + t <= 1)
+				pixels[x + (y + titleBarHeight) * 512] = 0x00FF00;
 		}
-		// else if (verts[0].Y == verts[2].Y)
-		// {
-			// uint x0 = Lerp(verts[1].X, verts[0].X, (float)y / height);
-			// uint x1 = Lerp(verts[2].X, verts[1].X, (float)y / height);
-			
-			// min = Min(x0, x1);
-			// max = Max(x0, x1);
-		// }
-		else if (verts[1].Y == verts[2].Y)
-		{
-			uint x0 = Lerp(verts[0].X, verts[1].X, (float)y / height);
-			uint x1 = Lerp(verts[0].X, verts[2].X, (float)y / height);
-			
-			min = Min(x0, x1);
-			max = Max(x0, x1);
-		}
-		else
-		{
-			uint x0 = Lerp(verts[1].X, verts[0].X, (float)y / height);
-			uint x1 = Lerp(verts[2].X, verts[0].X, (float)y / height);
-			uint x2 = Lerp(verts[2].X, verts[1].X, (float)y / height);
-			
-			min = Min(x0, Min(x1, x2));
-			max = Max(x0, Max(x1, x2));
-		}
-		
-		// Fill in the line
-		for (uint x = min; x < max; x++)
-			pixels[x + (y + verts[0].Y + titleBarHeight) * 512] = 0x00FF00;
-	}
 }

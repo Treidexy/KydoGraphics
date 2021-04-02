@@ -88,10 +88,7 @@ namespace Kydo
 	}
 
 	void Window::Clear()
-	{
-		std::printf("%i\n", nPixels);
-		memset(pixels, 0, nPixels * sizeof(COLORREF));
-	}
+	{ memset(pixels, 0, nPixels * sizeof(COLORREF)); }
 
 	void Window::Render()
 	{ RedrawWindow(handle, NULL, NULL, RDW_INVALIDATE); }
