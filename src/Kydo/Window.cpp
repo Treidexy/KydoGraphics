@@ -9,7 +9,10 @@ namespace Kydo
 	LRESULT CALLBACK Window::KydoWinProc(__in HWND wnd, __in UINT msg, __in WPARAM wParam, __in LPARAM lParam)
 	{
 		if (!Instance->alive)
+		{
+			PostQuitMessage(0);
 			return 0;
+		}
 
 		switch (msg)
 		{

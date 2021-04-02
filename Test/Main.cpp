@@ -6,15 +6,18 @@
 
 using uint = UINT;
 
-// https://github.com/tuliosouza99/rasterization
-void DrawPixel(COLORREF *pixels, const Kydo::Vertex &a)
-{ pixels[a.X + (a.Y + 23) * 512] = a.Color; }
+void DrawPixel(COLORREF *pixels, uint x, uint y, COLORREF col = 0x00FF00)
+{ pixels[x + (y) * 512] = col; }
 
+void DrawPixel(COLORREF *pixels, const Kydo::Vertex &a)
+{ DrawPixel(pixels, a.X, a.Y, a.Color); }
+
+// https://github.com/tuliosouza99/rasterization
 void DrawLine(COLORREF *pixels, const Kydo::Vertex &a, const Kydo::Vertex &b)
 {
 	int dx, dy, d, incrE, incrNe, step;
 	Kydo::Vertex newVert = a;
-	newVert.Color = 0x0000FF;
+	newVert.Color = 0xFF0000;
 	dx = std::abs(int(b.X - a.X));
 	dy = std::abs(int(b.Y - a.Y));
 	
@@ -80,33 +83,32 @@ void DrawLine(COLORREF *pixels, const Kydo::Vertex &a, const Kydo::Vertex &b)
 	}
 }
 
+// http://www.jeffreythompson.org/collision-detection/tri-point.php
 void DrawTriangle(COLORREF *pixels, const Kydo::Triangle &tri)
 {
 	const Kydo::Vertex &a = tri.Vertices[0], &b = tri.Vertices[1], &c = tri.Vertices[2];
-	DrawLine(pixels, a, b);
-	DrawLine(pixels, b, c);
-	DrawLine(pixels, c, a);
 
 	uint minX = std::min({ a.X, b.X, c.X });
 	uint maxX = std::max({ a.X, b.X, c.X });
 	
 	uint minY = std::min({ a.Y, b.Y, c.Y });
 	uint maxY = std::max({ a.Y, b.Y, c.Y });
-	
-	Kydo::Vertex eab { b.X - a.X, b.Y - a.Y };
-	Kydo::Vertex eac { c.X - a.X, c.Y - a.Y };
-	
+
+	float o = std::abs(((float)b.X - (float)a.X) * ((float)c.Y - (float)a.Y) - ((float)c.X - (float)a.X) * ((float)b.Y - (float)a.Y));
 	for (uint y = minY; y <= maxY; y++)
 		for (uint x = minX; x <= maxX; x++)
 		{
-			Kydo::Vertex q(x - a.X, y - a.Y);
-	
-			float s = float((q.X * eac.Y) - (eac.X * q.Y)) / float((eab.X * eac.Y) - (eac.X * eab.Y));
-			float t = float((eab.X * q.Y) - (q.X * eab.Y)) / float((eab.X * eac.Y) - (eac.X * eab.Y));
-	
-			if (s >= 0 && t >= 0 && s + t <= 1)
-				pixels[x + (y + 23) * 512] = 0x00FF00;
+			float a1 = std::abs(((float)a.X - (float)x) * ((float)b.Y - (float)y) - ((float)b.X - (float)x) * ((float)a.Y - (float)y));
+			float a2 = std::abs(((float)b.X - (float)x) * ((float)c.Y - (float)y) - ((float)c.X - (float)x) * ((float)b.Y - (float)y));
+			float a3 = std::abs(((float)c.X - (float)x) * ((float)a.Y - (float)y) - ((float)a.X - (float)x) * ((float)c.Y - (float)y));
+
+			if (a1 + a2 + a3 == o)
+				DrawPixel(pixels, x, y);
 		}
+
+	DrawLine(pixels, a, b);
+	DrawLine(pixels, b, c);
+	DrawLine(pixels, c, a);
 }
 
 int main()
