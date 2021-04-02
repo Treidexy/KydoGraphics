@@ -56,6 +56,14 @@ static uint Blend(uint x, uint y, float t)
 	return out;
 }
 
+static float Dist(global Vertex *a, global Vertex *b)
+{
+	float dx = Abs((float)a->X - (float)b->X);
+	float dy = Abs((float)a->Y - (float)b->Y);
+	
+	return sqrt(dx * dx + dy * dy);
+}
+
 static void DrawPixel(global uint *pixels, uint x, uint y, uint col)
 { pixels[x + y * 512] = col; }
 
@@ -146,15 +154,26 @@ kernel void Draw(global uint *pixels, global Triangle *tris, uint titleBarHeight
 	uint minY = Min(a->Y, Min(b->Y, c->Y));
 	uint maxY = Max(a->Y, Max(b->Y, c->Y));
 	
-	float o = Abs(((float)b->X - (float)a->X) * ((float)c->Y - (float)a->Y) - ((float)c->X -(float)a->X) * ((float)b->Y - (float)a->Y));
+	float d1 = Dist(a, b);
+	float d2 = Dist(b, c);
+	float d3 = Dist(c, a);
+	// float o = Abs(((float)b->X - (float)a->X) * ((float)c->Y - (float)a->Y) - ((float)c->X -(float)a->X) * ((float)b->Y - (float)a->Y));
 	for (uint y = minY; y <= maxY; y++)
 		for (uint x = minX; x <= maxX; x++)
 		{
-			float a1 = Abs(((float)a->X - (float)x) * ((float)b->Y - (float)y) - ((float)b->X - (float)x) * ((float)a->Y - (float)y));
-			float a2 = Abs(((float)b->X - (float)x) * ((float)c->Y - (float)y) - ((float)c->X - (float)x) * ((float)b->Y - (float)y));
-			float a3 = Abs(((float)c->X - (float)x) * ((float)a->Y - (float)y) - ((float)a->X - (float)x) * ((float)c->Y - (float)y));
+			// float a1 = Abs(((float)a->X - (float)x) * ((float)b->Y - (float)y) - ((float)b->X - (float)x) * ((float)a->Y - (float)y));
+			// float a2 = Abs(((float)b->X - (float)x) * ((float)c->Y - (float)y) - ((float)c->X - (float)x) * ((float)b->Y - (float)y));
+			// float a3 = Abs(((float)c->X - (float)x) * ((float)a->Y - (float)y) - ((float)a->X - (float)x) * ((float)c->Y - (float)y));
 
-			if (a1 + a2 + a3 == o)
+			// if (a1 + a2 + a3 == o)
+				// DrawPixel(pixels, x, y, 0xFFFFFF);
+			
+			Vertex *pv = &(Vertex) { x, y };
+			float pd1 = Dist(pv, a);
+			float pd2 = Dist(pv, b);
+			float pd3 = Dist(pv, c);
+			
+			if (pd1 <= d1 && pd2 <= d2 && pd3 <= d3)
 				DrawPixel(pixels, x, y, 0xFFFFFF);
 		}
 	
