@@ -37,11 +37,11 @@ int main()
 				Kydo::Triangle tri { x, y, z, };
 				wnd.Update();
 				renderer->Render(tri);
-				//wnd.Clear(renderer);
+				wnd.Clear(renderer);
 				wnd.Render(renderer);
 
 				using namespace std::chrono_literals;
-				std::this_thread::sleep_for(50ms);
+				std::this_thread::sleep_for(250ms);
 			}
 			wnd.Destroy();
 		}

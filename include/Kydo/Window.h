@@ -19,15 +19,15 @@ namespace Kydo
 		HWND handle;
 		HMODULE module;
 
+		HBITMAP bmp;
+		BITMAPINFO bmpInfo;
+
 		PCWSTR className, title;
 		WNDCLASSEXW clazz;
 
 		LONG nPixels;
 		LONG x, y, width, height;
 		COLORREF *pixels;
-
-		HANDLE msgLoopMutex;
-		HANDLE msgLoopThrd;
 
 		bool alive = true, destroyed = false;
 	public:

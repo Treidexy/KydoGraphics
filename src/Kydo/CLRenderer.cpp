@@ -72,6 +72,7 @@ namespace Kydo
 
 		ec = q.enqueueNDRangeKernel(clearKernel, cl::NullRange, cl::NDRange(wnd->Height)); CHECK_EC(ec);
 		ec = q.flush(); CHECK_EC(ec);
+		ec = q.finish(); CHECK_EC(ec);
 	}
 
 	void CLRenderer::Draw()
@@ -85,6 +86,7 @@ namespace Kydo
 		
 		ec = q.enqueueNDRangeKernel(drawKernel, cl::NullRange, cl::NDRange(tris.size())); CHECK_EC(ec);
 		ec = q.flush(); CHECK_EC(ec);
+		ec = q.finish(); CHECK_EC(ec);
 
 		tris.clear();
 	}

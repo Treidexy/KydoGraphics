@@ -64,9 +64,13 @@ static float Dist(global Vertex *a, global Vertex *b)
 	return sqrt(dx * dx + dy * dy);
 }
 
+#define SAFE 1
+
 static void DrawPixel(global uint *pixels, uint x, uint y, uint col)
 {
+	#if SAFE
 	if (x < 512 && y < 512)
+	#endif
 		pixels[x + y * 512] = col;
 }
 
@@ -151,23 +155,38 @@ kernel void Draw(global uint *pixels, global Triangle *tris, uint titleBarHeight
 	uint id = get_global_id(0);
 	global Vertex *a = &tris[id].Vertices[0], *b = &tris[id].Vertices[1], *c = &tris[id].Vertices[2];
 	
-	// uint minX = Min(a->X, Min(b->X, c->X));
-	// uint maxX = Max(a->X, Max(b->X, c->X));
+	uint minX = Min(a->X, Min(b->X, c->X));
+	uint maxX = Max(a->X, Max(b->X, c->X));
 	
-	// uint minY = Min(a->Y, Min(b->Y, c->Y));
-	// uint maxY = Max(a->Y, Max(b->Y, c->Y));
+	uint minY = Min(a->Y, Min(b->Y, c->Y));
+	uint maxY = Max(a->Y, Max(b->Y, c->Y));
 	
-	// float o = Abs(((float)b->X - (float)a->X) * ((float)c->Y - (float)a->Y) - ((float)c->X -(float)a->X) * ((float)b->Y - (float)a->Y));
-	// for (uint y = minY; y <= maxY; y++)
-		// for (uint x = minX; x <= maxX; x++)
-		// {
-			// float a1 = Abs(((float)a->X - (float)x) * ((float)b->Y - (float)y) - ((float)b->X - (float)x) * ((float)a->Y - (float)y));
-			// float a2 = Abs(((float)b->X - (float)x) * ((float)c->Y - (float)y) - ((float)c->X - (float)x) * ((float)b->Y - (float)y));
-			// float a3 = Abs(((float)c->X - (float)x) * ((float)a->Y - (float)y) - ((float)a->X - (float)x) * ((float)c->Y - (float)y));
+	float tdab = Abs(a->X - b->X + a->Y - b->Y);
+	float tdbc = Abs(b->X - c->X + b->Y - c->Y);
+	float tdca = Abs(c->X - a->X + c->Y - a->Y);
+	
+	float o = Abs(((float)b->X - (float)a->X) * ((float)c->Y - (float)a->Y) - ((float)c->X -(float)a->X) * ((float)b->Y - (float)a->Y));
+	for (uint y = minY; y <= maxY; y++)
+		for (uint x = minX; x <= maxX; x++)
+		{
+			float a1 = Abs(((float)a->X - (float)x) * ((float)b->Y - (float)y) - ((float)b->X - (float)x) * ((float)a->Y - (float)y));
+			float a2 = Abs(((float)b->X - (float)x) * ((float)c->Y - (float)y) - ((float)c->X - (float)x) * ((float)b->Y - (float)y));
+			float a3 = Abs(((float)c->X - (float)x) * ((float)a->Y - (float)y) - ((float)a->X - (float)x) * ((float)c->Y - (float)y));
 
-			// if (a1 + a2 + a3 == o)
-				// DrawPixel(pixels, x, y, Blend(c1, c2, 0.5f));
-		// s}
+			if (a1 + a2 + a3 == o)
+			{
+				float tda = Abs(a->X - x + a->Y - y);
+				float tdb = Abs(b->X - x + b->Y - y);
+				float tdc = Abs(c->X - x + c->Y - y);
+				
+				uint cab = Blend(0x000000, 0xFFFFFF, ((tda + tdb) / 2) / tdab);
+				uint cbc = Blend(0x000000, 0xFFFFFF, ((tdb + tdc) / 2) / tdbc);
+				uint cca = Blend(0x000000, 0xFFFFFF, ((tdc + tda) / 2) / tdca);
+				
+				uint c = Blend(cab, Blend(cbc, cca, 0.5f), 0.5f);
+				DrawPixel(pixels, x, y, c);
+			}
+		}
 	
 	DrawLine(pixels, a, b);
 	DrawLine(pixels, b, c);

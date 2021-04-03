@@ -6,24 +6,6 @@ namespace Kydo
 {
 	Window *Window::Instance;
 
-	DWORD CALLBACK Window::KydoWinMsgLoop(LPVOID)
-	{
-		while (Instance->alive)
-		{
-			WaitForSingleObjectEx(Instance->msgLoopMutex, INFINITE, TRUE);
-
-			if (PeekMessageW(&Instance->msg, Instance->handle, 0, 0, PM_REMOVE))
-			{
-				TranslateMessage(&Instance->msg);
-				DispatchMessageW(&Instance->msg);
-			}
-
-			ReleaseMutex(Instance->msgLoopMutex);
-		}
-
-		return 0;
-	}
-
 	LRESULT CALLBACK Window::KydoWinProc(__in HWND wnd, __in UINT msg, __in WPARAM wParam, __in LPARAM lParam)
 	{
 		if (!Instance->alive)
@@ -38,16 +20,6 @@ namespace Kydo
 		case WM_DESTROY:
 			Instance->alive = false;
 			PostQuitMessage(0);
-			return 0;
-
-		case WM_PAINT:
-			if (Instance->pixels)
-			{
-				PAINTSTRUCT paint;
-				HDC dc = BeginPaint(wnd, &paint);
-				BitBlt(dc, 0, 0, Instance->width, Instance->height, Instance->bmpDc, 0, 0, SRCCOPY);
-				EndPaint(wnd, &paint);
-			}
 			return 0;
 
 		default:
@@ -76,7 +48,7 @@ namespace Kydo
 		handle = CreateWindowExW(0, className, title, WS_OVERLAPPED | WS_SYSMENU | WS_MINIMIZEBOX,
 			x, y, width, height, NULL, NULL, module, NULL);
 
-		BITMAPINFO bmpInfo = { sizeof(BITMAPINFO) };
+		bmpInfo = { sizeof(BITMAPINFO) };
 		bmpInfo.bmiHeader.biWidth = width;
 		bmpInfo.bmiHeader.biHeight = height;
 		bmpInfo.bmiHeader.biPlanes = 1;
@@ -84,12 +56,9 @@ namespace Kydo
 		bmpInfo.bmiHeader.biCompression = BI_RGB;
 
 		dc = GetDC(handle);
-		HBITMAP bmp = CreateDIBSection(dc, &bmpInfo, DIB_RGB_COLORS, (void **)&pixels, NULL, 0); assert(bmp);
+		bmp = CreateDIBSection(dc, &bmpInfo, DIB_RGB_COLORS, (void **)&pixels, NULL, 0); assert(bmp);
 		bmpDc = CreateCompatibleDC(dc); assert(bmpDc);
 		SelectObject(bmpDc, bmp);
-
-		msgLoopMutex = CreateMutexExW(NULL, L"Jeffrey", CREATE_MUTEX_INITIAL_OWNER, 0);
-		msgLoopThrd = CreateThread(NULL, 0, KydoWinMsgLoop, NULL, 0, NULL);
 	}
 
 	Window::~Window()
@@ -116,7 +85,11 @@ namespace Kydo
 		if (!alive)
 			return;
 
-		ReleaseMutex(msgLoopMutex);
+		if (PeekMessageW(&msg, handle, 0, 0, PM_REMOVE | PM_NOYIELD))
+		{
+			TranslateMessage(&msg);
+			DispatchMessageW(&msg);
+		}
 	}
 
 	void Window::Clear(const std::unique_ptr<Renderer> &renderer)
@@ -132,7 +105,6 @@ namespace Kydo
 	{
 		if (!alive)
 			return;
-		//RedrawWindow(handle, NULL, NULL, RDW_INVALIDATE);
 		BitBlt(dc, 0, 0, width, height, bmpDc, 0, 0, SRCCOPY);
 	}
 
@@ -156,8 +128,6 @@ namespace Kydo
 			UnregisterClassW(className, module);
 
 			destroyed = true;
-
-			WaitForSingleObjectEx(msgLoopThrd, INFINITE, TRUE);
 		}
 	}
 
