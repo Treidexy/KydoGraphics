@@ -56,12 +56,11 @@ static uint Blend(uint x, uint y, float t)
 	return out;
 }
 
-static float Dist(global Vertex *a, global Vertex *b)
+static float Dist(float x1, float y1, float x2, float y2)
 {
-	float dx = Abs((float)a->X - (float)b->X);
-	float dy = Abs((float)a->Y - (float)b->Y);
-	
-	return sqrt(dx * dx + dy * dy);
+	float dx = x1 - x2;
+	float dy = y1 - y2;
+	return sqrt(Abs(dx * dx + dy * dy));
 }
 
 #define SAFE 1
@@ -85,7 +84,7 @@ void DrawLine(global uint *pixels, global Vertex *a, global Vertex *b)
 	dx = Abs((int)(b->X - a->X));
 	dy = Abs((int)(b->Y - a->Y));
 	
-	float finalStep = sqrt((float)(dx * dx + dy * dy));
+	float finalStep = Dist(a->X, a->Y, b->X, b->Y);
 	step = 0;
 
 	DrawVertex(pixels, &newVert);
@@ -161,29 +160,28 @@ kernel void Draw(global uint *pixels, global Triangle *tris, uint titleBarHeight
 	uint minY = Min(a->Y, Min(b->Y, c->Y));
 	uint maxY = Max(a->Y, Max(b->Y, c->Y));
 	
-	float tdab = Abs(a->X - b->X + a->Y - b->Y);
-	float tdbc = Abs(b->X - c->X + b->Y - c->Y);
-	float tdca = Abs(c->X - a->X + c->Y - a->Y);
+	float tdab = Dist(a->X, a->Y, b->X, b->Y);
+	float tdbc = Dist(b->X, b->Y, c->X, c->Y);
+	float tdca = Dist(c->X, c->Y, a->X, a->Y);
 	
 	float o = Abs(((float)b->X - (float)a->X) * ((float)c->Y - (float)a->Y) - ((float)c->X -(float)a->X) * ((float)b->Y - (float)a->Y));
 	for (uint y = minY; y <= maxY; y++)
 		for (uint x = minX; x <= maxX; x++)
 		{
-			float a1 = Abs(((float)a->X - (float)x) * ((float)b->Y - (float)y) - ((float)b->X - (float)x) * ((float)a->Y - (float)y));
-			float a2 = Abs(((float)b->X - (float)x) * ((float)c->Y - (float)y) - ((float)c->X - (float)x) * ((float)b->Y - (float)y));
-			float a3 = Abs(((float)c->X - (float)x) * ((float)a->Y - (float)y) - ((float)a->X - (float)x) * ((float)c->Y - (float)y));
+			float areaA = Abs(((float)a->X - (float)x) * ((float)b->Y - (float)y) - ((float)b->X - (float)x) * ((float)a->Y - (float)y));
+			float areaB = Abs(((float)b->X - (float)x) * ((float)c->Y - (float)y) - ((float)c->X - (float)x) * ((float)b->Y - (float)y));
+			float areaC = Abs(((float)c->X - (float)x) * ((float)a->Y - (float)y) - ((float)a->X - (float)x) * ((float)c->Y - (float)y));
 
-			if (a1 + a2 + a3 == o)
+			if (areaA + areaB + areaC == o)
 			{
-				float tda = Abs(a->X - x + a->Y - y);
-				float tdb = Abs(b->X - x + b->Y - y);
-				float tdc = Abs(c->X - x + c->Y - y);
+				float tda = Dist(a->X, a->Y, x, y);
+				float tdb = Dist(b->X, b->Y, x, y);
+				float tdc = Dist(c->X, c->Y, x, y);
 				
-				uint cab = Blend(0x000000, 0xFFFFFF, ((tda + tdb) / 2) / tdab);
-				uint cbc = Blend(0x000000, 0xFFFFFF, ((tdb + tdc) / 2) / tdbc);
-				uint cca = Blend(0x000000, 0xFFFFFF, ((tdc + tda) / 2) / tdca);
+				uint cab = Blend(a->Color, b->Color, 1 - sqrt(tda * tda + tdb * tdb) / tdab);
+				uint cbc = Blend(b->Color, c->Color, 1 - sqrt(tdb * tdb + tdc * tdc) / tdbc);
 				
-				uint c = Blend(cab, Blend(cbc, cca, 0.5f), 0.5f);
+				uint c = Blend(cab, cbc, 0.5f);
 				DrawPixel(pixels, x, y, c);
 			}
 		}

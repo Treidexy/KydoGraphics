@@ -23,25 +23,26 @@ int main()
 		if (renderer->IsAlive())
 		{
 			wnd.Show();
-			std::srand(std::time(NULL));
+			//std::srand(std::time(NULL));
+			//UINT r0 = std::rand() % 0xFF, r1 = std::rand() % 0xFF, r2 = std::rand() % 0xFF;
+			//UINT g0 = std::rand() % 0xFF, g1 = std::rand() % 0xFF, g2 = std::rand() % 0xFF;
+			//UINT b0 = std::rand() % 0xFF, b1 = std::rand() % 0xFF, b2 = std::rand() % 0xFF;
+
+			UINT r0 = 0xFF, r1 = 0x00, r2 = 0x00;
+			UINT g0 = 0x00, g1 = 0xFF, g2 = 0x00;
+			UINT b0 = 0x00, b1 = 0x00, b2 = 0xFF;
+			Kydo::Vertex x { 256, 384, r0 << 16 | g0 << 8 | b0 << 0, };
+			Kydo::Vertex y { 128, 128, r1 << 16 | g1 << 8 | b1 << 0, };
+			Kydo::Vertex z { 384, 128, r2 << 16 | g2 << 8 | b2 << 0, };
+			Kydo::Triangle tri { x, y, z, };
 			while (wnd.IsAlive() && renderer->IsAlive())
 			{
-				UINT x0 = std::rand() % 512, x1 = std::rand() % 512, x2 = std::rand() % 512;
-				UINT y0 = std::rand() % 512, y1 = std::rand() % 512, y2 = std::rand() % 512;
-				UINT r0 = std::rand() % 0xFF, r1 = std::rand() % 0xFF, r2 = std::rand() % 0xFF;
-				UINT g0 = std::rand() % 0xFF, g1 = std::rand() % 0xFF, g2 = std::rand() % 0xFF;
-				UINT b0 = std::rand() % 0xFF, b1 = std::rand() % 0xFF, b2 = std::rand() % 0xFF;
-				Kydo::Vertex x { x0, y0, r0 << 16 | g0 << 8 | b0 << 0, };
-				Kydo::Vertex y { x1, y1, r1 << 16 | g1 << 8 | b1 << 0, };
-				Kydo::Vertex z { x2, y2, r2 << 16 | g2 << 8 | b2 << 0, };
-				Kydo::Triangle tri { x, y, z, };
 				wnd.Update();
-				renderer->Render(tri);
 				wnd.Clear(renderer);
+				renderer->Render(tri);
 				wnd.Render(renderer);
-
-				using namespace std::chrono_literals;
-				std::this_thread::sleep_for(250ms);
+				//using namespace std::chrono_literals;
+				//std::this_thread::sleep_for(250ms);
 			}
 			wnd.Destroy();
 		}
