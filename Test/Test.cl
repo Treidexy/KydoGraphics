@@ -174,15 +174,15 @@ kernel void Draw(global uint *pixels, global Triangle *tris, uint titleBarHeight
 
 			if (areaA + areaB + areaC == o)
 			{
-				float tda = Dist(a->X, a->Y, x, y);
-				float tdb = Dist(b->X, b->Y, x, y);
-				float tdc = Dist(c->X, c->Y, x, y);
-				
-				uint cab = Blend(a->Color, b->Color, 1 - sqrt(tda * tda + tdb * tdb) / tdab);
-				uint cbc = Blend(b->Color, c->Color, 1 - sqrt(tdb * tdb + tdc * tdc) / tdbc);
-				
-				uint c = Blend(cab, cbc, 0.5f);
-				DrawPixel(pixels, x, y, c);
+				float max = Max(areaA, Max(areaB, areaC));
+				uint col;
+				if (max == areaA)
+					col = c->Color;
+				else if (max == areaB)
+					col = a->Color;
+				else if (max == areaC)
+					col = b->Color;
+				DrawPixel(pixels, x, y, col);
 			}
 		}
 	
