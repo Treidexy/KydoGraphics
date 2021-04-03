@@ -149,6 +149,9 @@ void DrawLine(global uint *pixels, global Vertex *a, global Vertex *b)
 }
 
 // Taken from -> http://www.jeffreythompson.org/collision-detection/tri-point.php
+float TriangleArea(float x1, float y1, float x2, float y2, float x3, float y3)
+{ return Abs(((float)x1 - (float)x2) * ((float)y3 - (float)y2) - ((float)x3 - (float)x2) * ((float)y1 - (float)y2)); }
+
 kernel void Draw(global uint *pixels, global Triangle *tris, uint titleBarHeight)
 {
 	uint id = get_global_id(0);
@@ -168,20 +171,20 @@ kernel void Draw(global uint *pixels, global Triangle *tris, uint titleBarHeight
 	for (uint y = minY; y <= maxY; y++)
 		for (uint x = minX; x <= maxX; x++)
 		{
-			float areaA = Abs(((float)a->X - (float)x) * ((float)b->Y - (float)y) - ((float)b->X - (float)x) * ((float)a->Y - (float)y));
-			float areaB = Abs(((float)b->X - (float)x) * ((float)c->Y - (float)y) - ((float)c->X - (float)x) * ((float)b->Y - (float)y));
-			float areaC = Abs(((float)c->X - (float)x) * ((float)a->Y - (float)y) - ((float)a->X - (float)x) * ((float)c->Y - (float)y));
+			float areaC = TriangleArea(a->X, a->Y, x, y, b->X, b->Y);
+			float areaA = TriangleArea(b->X, b->Y, x, y, c->X, c->Y);
+			float areaB = TriangleArea(c->X, c->Y, x, y, a->X, a->Y);
 
 			if (areaA + areaB + areaC == o)
 			{
 				float max = Max(areaA, Max(areaB, areaC));
 				uint col;
 				if (max == areaA)
-					col = c->Color;
-				else if (max == areaB)
 					col = a->Color;
-				else if (max == areaC)
+				else if (max == areaB)
 					col = b->Color;
+				else if (max == areaC)
+					col = c->Color;
 				DrawPixel(pixels, x, y, col);
 			}
 		}
