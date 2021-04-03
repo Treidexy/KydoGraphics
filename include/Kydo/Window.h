@@ -26,6 +26,9 @@ namespace Kydo
 		LONG x, y, width, height;
 		COLORREF *pixels;
 
+		HANDLE msgLoopMutex;
+		HANDLE msgLoopThrd;
+
 		bool alive = true, destroyed = false;
 	public:
 		Window(PCWSTR title, LONG width = 1280, LONG height = 720, PCWSTR className = L"MyClass", HMODULE = NULL);
@@ -57,6 +60,7 @@ namespace Kydo
 		KYDO_PROPERTY(get = GetPixels) COLORREF *Pixels;
 		KYDO_PROPERTY(get = GetPixelCount) LONG PixelCount;
 
+		static DWORD CALLBACK KydoWinMsgLoop(LPVOID);
 		static LRESULT CALLBACK KydoWinProc(__in HWND wnd, __in UINT msg, __in WPARAM wParam, __in LPARAM lParam);
 	};
 }

@@ -65,7 +65,10 @@ static float Dist(global Vertex *a, global Vertex *b)
 }
 
 static void DrawPixel(global uint *pixels, uint x, uint y, uint col)
-{ pixels[x + y * 512] = col; }
+{
+	if (x < 512 && y < 512)
+		pixels[x + y * 512] = col;
+}
 
 static void DrawVertex(global uint *pixels, Vertex *vert)
 { DrawPixel(pixels, vert->X, vert->Y, vert->Color); }
@@ -145,8 +148,8 @@ void DrawLine(global uint *pixels, global Vertex *a, global Vertex *b)
 // Taken from -> http://www.jeffreythompson.org/collision-detection/tri-point.php
 kernel void Draw(global uint *pixels, global Triangle *tris, uint titleBarHeight)
 {
-	// uint id = get_global_id(0);
-	// global Vertex *a = &tris[id].Vertices[0], *b = &tris[id].Vertices[1], *c = &tris[id].Vertices[2];
+	uint id = get_global_id(0);
+	global Vertex *a = &tris[id].Vertices[0], *b = &tris[id].Vertices[1], *c = &tris[id].Vertices[2];
 	
 	// uint minX = Min(a->X, Min(b->X, c->X));
 	// uint maxX = Max(a->X, Max(b->X, c->X));
@@ -163,25 +166,17 @@ kernel void Draw(global uint *pixels, global Triangle *tris, uint titleBarHeight
 			// float a3 = Abs(((float)c->X - (float)x) * ((float)a->Y - (float)y) - ((float)a->X - (float)x) * ((float)c->Y - (float)y));
 
 			// if (a1 + a2 + a3 == o)
-			// {
-				// uint c1 = Blend(0, 0xFF0000, ((float)x / 512));
-				// uint c2 = Blend(0, 0x0000FF, ((float)y / 512));
 				// DrawPixel(pixels, x, y, Blend(c1, c2, 0.5f));
-			// }
-		// }
+		// s}
 	
-	// DrawLine(pixels, a, b);
-	// DrawLine(pixels, b, c);
-	// DrawLine(pixels, c, a);
+	DrawLine(pixels, a, b);
+	DrawLine(pixels, b, c);
+	DrawLine(pixels, c, a);
 }
 
 kernel void Clear(global uint *pixels, uint col)
 {
 	uint y = get_global_id(0);
 	for (uint x = 0; x < 512; x++)
-	{
-		uint cx = Blend(0x000000, 0xFF0000, ((float)x / 512));
-		uint cy = Blend(0x00FF00, 0x0000FF, ((float)y / 512));
-		DrawPixel(pixels, x, y, Blend(cx, cy, 0.5f));
-	}
+		DrawPixel(pixels, x, y, 0x404040);
 }
