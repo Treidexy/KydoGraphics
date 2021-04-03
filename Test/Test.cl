@@ -145,35 +145,43 @@ void DrawLine(global uint *pixels, global Vertex *a, global Vertex *b)
 // Taken from -> http://www.jeffreythompson.org/collision-detection/tri-point.php
 kernel void Draw(global uint *pixels, global Triangle *tris, uint titleBarHeight)
 {
-	uint id = get_global_id(0);
-	global Vertex *a = &tris[id].Vertices[0], *b = &tris[id].Vertices[1], *c = &tris[id].Vertices[2];
+	// uint id = get_global_id(0);
+	// global Vertex *a = &tris[id].Vertices[0], *b = &tris[id].Vertices[1], *c = &tris[id].Vertices[2];
 	
-	uint minX = Min(a->X, Min(b->X, c->X));
-	uint maxX = Max(a->X, Max(b->X, c->X));
+	// uint minX = Min(a->X, Min(b->X, c->X));
+	// uint maxX = Max(a->X, Max(b->X, c->X));
 	
-	uint minY = Min(a->Y, Min(b->Y, c->Y));
-	uint maxY = Max(a->Y, Max(b->Y, c->Y));
+	// uint minY = Min(a->Y, Min(b->Y, c->Y));
+	// uint maxY = Max(a->Y, Max(b->Y, c->Y));
 	
-	float o = Abs(((float)b->X - (float)a->X) * ((float)c->Y - (float)a->Y) - ((float)c->X -(float)a->X) * ((float)b->Y - (float)a->Y));
-	for (uint y = minY; y <= maxY; y++)
-		for (uint x = minX; x <= maxX; x++)
-		{
-			float a1 = Abs(((float)a->X - (float)x) * ((float)b->Y - (float)y) - ((float)b->X - (float)x) * ((float)a->Y - (float)y));
-			float a2 = Abs(((float)b->X - (float)x) * ((float)c->Y - (float)y) - ((float)c->X - (float)x) * ((float)b->Y - (float)y));
-			float a3 = Abs(((float)c->X - (float)x) * ((float)a->Y - (float)y) - ((float)a->X - (float)x) * ((float)c->Y - (float)y));
+	// float o = Abs(((float)b->X - (float)a->X) * ((float)c->Y - (float)a->Y) - ((float)c->X -(float)a->X) * ((float)b->Y - (float)a->Y));
+	// for (uint y = minY; y <= maxY; y++)
+		// for (uint x = minX; x <= maxX; x++)
+		// {
+			// float a1 = Abs(((float)a->X - (float)x) * ((float)b->Y - (float)y) - ((float)b->X - (float)x) * ((float)a->Y - (float)y));
+			// float a2 = Abs(((float)b->X - (float)x) * ((float)c->Y - (float)y) - ((float)c->X - (float)x) * ((float)b->Y - (float)y));
+			// float a3 = Abs(((float)c->X - (float)x) * ((float)a->Y - (float)y) - ((float)a->X - (float)x) * ((float)c->Y - (float)y));
 
-			if (a1 + a2 + a3 == o && (a1 < o / 2 && a2 < o / 2 && a3 < o / 2))
-				DrawPixel(pixels, x, y, 0xFFFFFF);
-		}
+			// if (a1 + a2 + a3 == o)
+			// {
+				// uint c1 = Blend(0, 0xFF0000, ((float)x / 512));
+				// uint c2 = Blend(0, 0x0000FF, ((float)y / 512));
+				// DrawPixel(pixels, x, y, Blend(c1, c2, 0.5f));
+			// }
+		// }
 	
-	DrawLine(pixels, a, b);
-	DrawLine(pixels, b, c);
-	DrawLine(pixels, c, a);
+	// DrawLine(pixels, a, b);
+	// DrawLine(pixels, b, c);
+	// DrawLine(pixels, c, a);
 }
 
 kernel void Clear(global uint *pixels, uint col)
 {
 	uint y = get_global_id(0);
 	for (uint x = 0; x < 512; x++)
-		pixels[x + y * 512] = col;
+	{
+		uint cx = Blend(0x000000, 0xFF0000, ((float)x / 512));
+		uint cy = Blend(0x00FF00, 0x0000FF, ((float)y / 512));
+		DrawPixel(pixels, x, y, Blend(cx, cy, 0.5f));
+	}
 }
