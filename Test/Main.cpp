@@ -111,10 +111,10 @@ int main()
 			float rad = 128;
 			float rot = 0;
 			std::vector<Kydo::Vertex> verts = {
-				{ 128, 384, 0xFFFF00, },
+				{ 128, 384, 0xFF0000, },
 				{ 384, 384, 0x00FF00, },
-				{ 384, 128, 0x00FFFF, },
-				{ 128, 128, 0xFF0000, },
+				{ 384, 128, 0x0000FF, },
+				{ 128, 128, 0xFFFF00, },
 			};
 			std::vector<Kydo::Indice> indices = {
 				0, 1, 2,

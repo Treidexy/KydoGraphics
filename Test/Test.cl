@@ -188,11 +188,14 @@ void DrawBottom(global Color *pixels, Vertex a, Vertex b, Vertex c)
 	// Calculate current x
 	float cx1 = a.X;
 	float cx2 = a.X;
+	
+	float cxEnd1 = a.X - (is1 * b.Y - a.Y);
+	float cxEnd2 = a.X - (is2 * b.Y - a.Y);
 
 	for (uint y = a.Y; y <= b.Y; y++)
 	{
-		for (uint x = Min(cx1, cx2), end = Max(cx1, cx2); x < end; x++)
-			DrawPixel(pixels, x, y, 0xFFFFFF);
+		for (uint start = Min(cx1, cx2), x = start, end = Max(cx1, cx2); x <= end; x++)
+			DrawPixel(pixels, x, y, Blend(a.Color, b.Color, cx1 / cxEnd1));
 		cx1 += is1;
 		cx2 += is2;
 	}
@@ -207,11 +210,14 @@ void DrawTop(global Color *pixels, Vertex a, Vertex b, Vertex c)
 	// Calculate current x
 	float cx1 = c.X;
 	float cx2 = c.X;
+	
+	float cxEnd1 = c.X - (is1 * c.Y - a.Y);
+	float cxEnd2 = c.X - (is2 * c.Y - a.Y);
 
 	for (uint y = c.Y; y > a.Y; y--)
 	{
-		for (uint x = Min(cx1, cx2), end = Max(cx1, cx2); x < end; x++)
-			DrawPixel(pixels, x, y, 0xFFFFFF);
+		for (uint start = Min(cx1, cx2), x = start, end = Max(cx1, cx2); x <= end; x++)
+			DrawPixel(pixels, x, y, Blend(a.Color, b.Color, cx1 / cxEnd1));
 		cx1 -= is1;
 		cx2 -= is2;
 	}
