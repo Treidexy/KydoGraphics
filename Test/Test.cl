@@ -1,3 +1,5 @@
+#define SAFE 1
+
 typedef struct Triangle Triangle;
 typedef struct Vertex Vertex;
 typedef struct Rect Rect;
@@ -98,8 +100,6 @@ static float Dist(float x1, float y1, float x2, float y2)
 	// return Abs(dx + dy);
 }
 
-#define SAFE 1
-
 static void DrawPixel(global uint *pixels, uint x, uint y, uint col)
 {
 	#if SAFE
@@ -182,7 +182,8 @@ void DrawLine(global uint *pixels, global Vertex *a, global Vertex *b)
 	}
 }
 
-// Taken from -> http://www.jeffreythompson.org/collision-detection/tri-point.php
+// Taken from -> https://www.scratchapixel.com/lessons/3d-basic-rendering/rasterization-practical-implementation/rasterization-stage
+// With some chedder from -> http://www.jeffreythompson.org/collision-detection/tri-point.php
 float TriangleArea(float x1, float y1, float x2, float y2, float x3, float y3)
 { return Abs((x1 - x2) * (y3 - y2) - (x3 - x2) * (y1 - y2)); }
 
