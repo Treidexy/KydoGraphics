@@ -96,7 +96,7 @@ static float Dist(float x1, float y1, float x2, float y2)
 	// return Abs(dx + dy);
 }
 
-static void DrawPixel(global uint *pixels, uint x, uint y, uint col)
+static void DrawPixel(global uint *pixels, uint x, uint y, Color col)
 {
 	#if SAFE
 	if (x < 512 && y < 512)
@@ -110,71 +110,25 @@ static void DrawVertex(global uint *pixels, Vertex *vert)
 // Taken from -> https://github.com/tuliosouza99/rasterization
 void DrawLine(global Color *pixels, global Vertex *a, global Vertex *b)
 {
-	Vertex newVert = *a;
-	int d, incrE, incrNe;
-	int dx = Abs((int)(a->X - b->X));
-	int dy = Abs((int)(a->Y - b->Y));
-	float finalStep = Sqrt(dx * dx + dy * dy);
-	float step = 0;
-
-	DrawVertex(pixels, &newVert);
-	if (dx >= dy)
+	int x = a->X;
+	int y = a->Y;
+	
+	float dx = Abs(b->X - a->X);
+	float dy = Abs(b->Y - a->Y);
+	float slope = dy / dx;
+	
+	float e = (dy / dx) - 0.5f;
+	for (uint i = 01; i <= dx; i++)
 	{
-		incrE = 2 * dy;
-		incrNe = 2 * (dy - dx);
-
-		d = 2 * dy - dx;
-		while (newVert.X != b->X)
+		DrawPixel(pixels, x, y, Blend(a->Color, b->Color, i / dx));
+		while (e >= 0)
 		{
-			if (d <= 0)
-				d += incrE;
-			else
-			{
-				d += incrNe;
-				if (b->Y >= a->Y)
-					newVert.Y++;
-				else
-					newVert.Y--;
-			}
-
-			if (b->X >= a->X)
-				newVert.X++;
-			else
-				newVert.X--;
-
-			newVert.Color = Blend(a->Color, b->Color, step / finalStep);
-			DrawVertex(pixels, &newVert);
-			step++;
+			y++;
+			e--;
 		}
-	}
-	else
-	{
-		incrE = 2 * dx;
-		incrNe = 2 * (dx - dy);
-
-		d = 2 * (dx - dy);
-		while (newVert.Y != b->Y)
-		{
-			if (d <= 0)
-				d += incrE;
-			else
-			{
-				d += incrNe;
-				if (b->X >= a->X)
-					newVert.X++;
-				else
-					newVert.X--;
-			}
-
-			if (b->Y >= a->Y)
-				newVert.Y++;
-			else
-				newVert.Y--;
-
-			newVert.Color = Blend(a->Color, b->Color, step / finalStep);
-			DrawVertex(pixels, &newVert);
-			step++;
-		}
+		
+		x++;
+		e += slope;
 	}
 }
 
@@ -195,7 +149,11 @@ void DrawBottom(global Color *pixels, Vertex a, Vertex b, Vertex c)
 	for (uint y = a.Y; y <= b.Y; y++)
 	{
 		for (uint start = Min(cx1, cx2), x = start, end = Max(cx1, cx2); x <= end; x++)
-			DrawPixel(pixels, x, y, Blend(a.Color, b.Color, cx1 / cxEnd1));
+		{
+			Color xCol = Blend(a.Color, b.Color, (x - start) / (end - start));
+			Color col = Blend(c.Color, xCol, (y - c.Y) / (c.Y - a.Y));
+			DrawPixel(pixels, x, y, col);
+		}
 		cx1 += is1;
 		cx2 += is2;
 	}
@@ -210,14 +168,15 @@ void DrawTop(global Color *pixels, Vertex a, Vertex b, Vertex c)
 	// Calculate current x
 	float cx1 = c.X;
 	float cx2 = c.X;
-	
-	float cxEnd1 = c.X - (is1 * c.Y - a.Y);
-	float cxEnd2 = c.X - (is2 * c.Y - a.Y);
 
 	for (uint y = c.Y; y > a.Y; y--)
 	{
 		for (uint start = Min(cx1, cx2), x = start, end = Max(cx1, cx2); x <= end; x++)
-			DrawPixel(pixels, x, y, Blend(a.Color, b.Color, cx1 / cxEnd1));
+		{
+			Color xCol = Blend(a.Color, b.Color, (x - start) / (end - start));
+			Color col = Blend(c.Color, xCol, (y - c.Y) / (c.Y - a.Y));
+			DrawPixel(pixels, x, y, col);
+		}
 		cx1 -= is1;
 		cx2 -= is2;
 	}
@@ -233,28 +192,32 @@ kernel void Draw(global Color *pixels, global Vertex *verts, global Indice *indi
 		*b = &verts[indices[id * 3 + 1]],
 		*c = &verts[indices[id * 3 + 2]];
 	
-	global Vertex *tmp;
-	if (a->Y > b->Y)
-		Swap(a, b);
-	if (a->Y > c->Y)
-		Swap(a, c);
-	if (b->Y > c->Y)
-		Swap(b, c);
+	// global Vertex *tmp;
+	// if (a->Y > b->Y)
+		// Swap(a, b);
+	// if (a->Y > c->Y)
+		// Swap(a, c);
+	// if (b->Y > c->Y)
+		// Swap(b, c);
 	
-	if (b->Y == c->Y)
-		DrawBottom(pixels, *a, *b, *c);
-	else if (a->Y == b->Y)
-		DrawTop(pixels, *a, *b, *c);
-	else
-	{
+	// if (b->Y == c->Y)
+		// DrawBottom(pixels, *a, *b, *c);
+	// else if (a->Y == b->Y)
+		// DrawTop(pixels, *a, *b, *c);
+	// else
+	// {
 		// Cut the triangle in half (totally not torture)
-		Vertex d = {
-			a->X + ((float)(int)(b->Y - a->Y) / (float)(int)(c->Y - a->Y)) * (int)(c->X - a->X),
-			b->Y,
-		};
-		DrawBottom(pixels, *a, *b, d);
-		DrawTop(pixels, *b, d, *c);
-	}
+		// Vertex d = {
+			// a->X + ((float)(int)(b->Y - a->Y) / (float)(int)(c->Y - a->Y)) * (int)(c->X - a->X),
+			// b->Y,
+		// };
+		// DrawBottom(pixels, *a, *b, d);
+		// DrawTop(pixels, *b, d, *c);
+	// }
+	
+	DrawLine(pixels, a, b);
+	DrawLine(pixels, b, c);
+	DrawLine(pixels, c, a);
 }
 
 kernel void Clear(global Color *pixels, uint col)
