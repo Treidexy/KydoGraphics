@@ -4,6 +4,8 @@
 
 namespace Kydo
 {
+	using Indice = UINT;
+
 	struct Vertex
 	{
 		UINT X, Y;

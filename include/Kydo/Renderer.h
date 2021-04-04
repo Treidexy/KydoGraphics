@@ -15,7 +15,7 @@ namespace Kydo
 		Renderer() = default;
 	public:
 		virtual ~Renderer() = default;
-		virtual void Render(std::vector<Vertex> verts, std::vector<UINT> indices) = NULL;
+		virtual void Render(std::vector<Vertex> verts, std::vector<Indice> indices) = NULL;
 
 		virtual bool IsAlive() = NULL;
 

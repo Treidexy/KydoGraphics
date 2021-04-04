@@ -4,6 +4,8 @@
 #include <cstdlib>
 #include <algorithm>
 
+#define PI 3.1415926535f
+
 int main()
 {
 	{
@@ -23,25 +25,24 @@ int main()
 		if (renderer->IsAlive())
 		{
 			wnd.Clear(renderer);
-			renderer->Render(
-				{
-					{ 128, 128, 0x00FF00, },
-					{ 128, 384, 0x00FF00, },
-					{ 384, 384, 0x00FF00, },
-					{ 384, 128, 0x00FF00, },
-				},
-				{
-					0, 1, 2,
-					0, 2, 3,
-				});
-			wnd.Render(renderer);
+			std::vector<Kydo::Vertex> verts = {
+				{ 128, 384, 0xFFFF00, },
+				{ 384, 384, 0x00FF00, },
+				{ 384, 128, 0x00FFFF, },
+				{ 128, 128, 0xFF0000, },
+			};
+			std::vector<Kydo::Indice> indices = {
+				0, 1, 2,
+				0, 2, 3,
+			};
 
 			wnd.Show();
 			while (wnd.IsAlive() && renderer->IsAlive())
 			{
 				wnd.Update();
-				//wnd.Clear(renderer);
-				//wnd.Render(renderer);
+				wnd.Clear(renderer);
+				renderer->Render(verts, indices);
+				wnd.Render(renderer);
 				using namespace std::chrono_literals;
 				std::this_thread::sleep_for(50ms);
 			}

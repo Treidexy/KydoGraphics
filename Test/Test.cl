@@ -2,11 +2,13 @@
 
 typedef struct Vertex Vertex;
 typedef struct Rect Rect;
+typedef uint Indice;
+typedef uint Color;
 
 struct Vertex
 {
 	uint X, Y;
-	uint Color;
+	Color Color;
 };
 
 struct Rect
@@ -37,30 +39,30 @@ static uchar Lerp(float x, float y, float t)
 // #define Blue(x) (x << 0 & 0xFF)
 // #define RGB(r, g, b) (r << 16 | g << 8 | b << 0)
 
-static uint Red(uint x)
+static uint Red(Color x)
 { return x >> 16 & 0xFF; }
 
-static uint Green(uint x)
+static uint Green(Color x)
 { return x >> 8 & 0xFF; }
 
-static uint Blue(uint x)
+static uint Blue(Color x)
 { return x >> 0 & 0xFF; }
 
 
-static float Redf(uint x)
+static float Redf(Color x)
 { return (float)Red(x) / 255; }
 
-static float Greenf(uint x)
+static float Greenf(Color x)
 { return (float)Green(x) / 255; }
 
-static float Bluef(uint x)
+static float Bluef(Color x)
 { return (float)Blue(x) / 255; }
 
 
-static uint RGB(uchar r, uchar g, uchar b)
+static Color RGB(uchar r, uchar g, uchar b)
 { return (((uint)r) << 16) | (((uint)g) << 8) | (((uint)b) << 0); }
 
-static uint RGBf(float r, float g, float b)
+static Color RGBf(float r, float g, float b)
 { return RGB(r * 255, g * 255, b * 255); }
 
 static uint Blend(uint x, uint y, float t)
@@ -106,7 +108,7 @@ static void DrawVertex(global uint *pixels, Vertex *vert)
 { DrawPixel(pixels, vert->X, vert->Y, vert->Color); }
 
 // Taken from -> https://github.com/tuliosouza99/rasterization
-void DrawLine(global uint *pixels, global Vertex *a, global Vertex *b)
+void DrawLine(global Color *pixels, global Vertex *a, global Vertex *b)
 {
 	Vertex newVert = *a;
 	int d, incrE, incrNe;
@@ -181,7 +183,7 @@ void DrawLine(global uint *pixels, global Vertex *a, global Vertex *b)
 float TriangleArea(float x1, float y1, float x2, float y2, float x3, float y3)
 { return Abs((x1 - x2) * (y3 - y2) - (x3 - x2) * (y1 - y2)); }
 
-kernel void Draw(global uint *pixels, global Vertex *verts, global uint *indices)
+kernel void Draw(global Color *pixels, global Vertex *verts, global Indice *indices)
 {
 	uint id = get_global_id(0);
 	global Vertex
@@ -225,7 +227,7 @@ kernel void Draw(global uint *pixels, global Vertex *verts, global uint *indices
 	DrawLine(pixels, c, a);
 }
 
-kernel void Clear(global uint *pixels, uint col)
+kernel void Clear(global Color *pixels, uint col)
 {
 	uint y = get_global_id(0);
 	for (uint x = 0; x < 512; x++)

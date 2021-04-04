@@ -23,14 +23,14 @@ namespace Kydo
 		Window *wnd;
 		std::string src;
 		std::vector<std::vector<Vertex>> verts;
-		std::vector<std::vector<UINT>> indices;
+		std::vector<std::vector<Indice>> indices;
 	public:
 		CLRenderer(Window &, std::string_view src);
 		~CLRenderer() override;
 
 		void Clear(COLORREF);
 		void Draw();
-		virtual void Render(std::vector<Vertex> verts, std::vector<UINT> indices) override;
+		virtual void Render(std::vector<Vertex> verts, std::vector<Indice> indices) override;
 
 		bool IsDrawing();
 		virtual bool IsAlive() override;
