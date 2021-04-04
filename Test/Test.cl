@@ -29,7 +29,7 @@ static uint Max(uint x, uint y)
 
 static float Abs(float x)
 {
-	*(int *)&x &= 0x7FFFFFFF;
+	((uchar *)&x)[3] &= 0x7F; // What's this ugly code?
 	return x;
 }
 
@@ -114,10 +114,10 @@ static void DrawVertex(global uint *pixels, Vertex *vert)
 // Taken from -> https://github.com/tuliosouza99/rasterization
 void DrawLine(global uint *pixels, global Vertex *a, global Vertex *b)
 {
-	int dx, dy, d, incrE, incrNe;
 	Vertex newVert = *a;
-	dx = Abs(a->X - b->X);
-	dy = Abs(a->Y - b->Y);
+	int d, incrE, incrNe;
+	int dx = Abs((int)(a->X - b->X));
+	int dy = Abs((int)(a->Y - b->Y));
 	float finalStep = Sqrt(dx * dx + dy * dy);
 	float step = 0;
 
@@ -222,9 +222,9 @@ kernel void Draw(global uint *pixels, global Triangle *tris, uint titleBarHeight
 			}
 		}
 	
-	// DrawLine(pixels, a, b);
-	// DrawLine(pixels, b, c);
-	// DrawLine(pixels, c, a);
+	DrawLine(pixels, a, b);
+	DrawLine(pixels, b, c);
+	DrawLine(pixels, c, a);
 }
 
 kernel void Clear(global uint *pixels, uint col)
