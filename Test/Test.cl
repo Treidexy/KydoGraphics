@@ -52,13 +52,13 @@ static uint Blue(uint x)
 
 
 static float Redf(uint x)
-{ return Red(x) / 255; }
+{ return (float)Red(x) / 255; }
 
 static float Greenf(uint x)
-{ return Green(x) / 255; }
+{ return (float)Green(x) / 255; }
 
 static float Bluef(uint x)
-{ return Blue(x) / 255; }
+{ return (float)Blue(x) / 255; }
 
 
 static uint RGB(uchar r, uchar g, uchar b)
@@ -184,7 +184,7 @@ void DrawLine(global uint *pixels, global Vertex *a, global Vertex *b)
 
 // Taken from -> http://www.jeffreythompson.org/collision-detection/tri-point.php
 float TriangleArea(float x1, float y1, float x2, float y2, float x3, float y3)
-{ return Abs(((float)x1 - (float)x2) * ((float)y3 - (float)y2) - ((float)x3 - (float)x2) * ((float)y1 - (float)y2)); }
+{ return Abs((x1 - x2) * (y3 - y2) - (x3 - x2) * (y1 - y2)); }
 
 kernel void Draw(global uint *pixels, global Triangle *tris, uint titleBarHeight)
 {
