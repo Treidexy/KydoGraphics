@@ -187,11 +187,11 @@ kernel void Draw(global uint *pixels, global Triangle *tris, uint titleBarHeight
 				
 				uint col;
 				if (min == areaA)
-					col = Blend(b->Color, c->Color, tdb / tdbc);
+					col = Blend(a->Color, Blend(b->Color, c->Color, tdb / tdbc), tda / tdbc);
 				else if (min == areaB)
-					col = Blend(c->Color, a->Color, tdc / tdca);
+					col = Blend(b->Color, Blend(c->Color, a->Color, tdc / tdbc), tdb / tdca);
 				else if (min == areaC)
-					col = Blend(a->Color, b->Color, tda / tdab);
+					col = Blend(c->Color, Blend(a->Color, b->Color, tda / tdab), tdc / tdab);
 				DrawPixel(pixels, x, y, col);
 			}
 		}
