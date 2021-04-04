@@ -56,11 +56,13 @@ static uint Blend(uint x, uint y, float t)
 	return out;
 }
 
+#define Sqrt(x) sqrt(x)
+
 static float Dist(float x1, float y1, float x2, float y2)
 {
 	float dx = x1 - x2;
 	float dy = y1 - y2;
-	return sqrt(Abs(dx * dx + dy * dy));
+	return Sqrt(Abs(dx * dx + dy * dy));
 	// return Abs(dx * dx + dy * dy);
 	// return Abs(dx + dy);
 }
@@ -187,11 +189,11 @@ kernel void Draw(global uint *pixels, global Triangle *tris, uint titleBarHeight
 				
 				uint col;
 				if (min == areaA)
-					col = Blend(a->Color, Blend(b->Color, c->Color, tdb / tdbc), tda / tdbc);
+					col = Blend(a->Color, Blend(b->Color, c->Color, tdb / tdbc), Sqrt(tda * tda + tdab * tdca));
 				else if (min == areaB)
-					col = Blend(b->Color, Blend(c->Color, a->Color, tdc / tdbc), tdb / tdca);
+					col = Blend(b->Color, Blend(c->Color, a->Color, tdc / tdbc), Sqrt(tdb * tdb + tdab * tdbc));
 				else if (min == areaC)
-					col = Blend(c->Color, Blend(a->Color, b->Color, tda / tdab), tdc / tdab);
+					col = Blend(c->Color, Blend(a->Color, b->Color, tda / tdab), Sqrt(tdc * tdc + tdbc * tdca));
 				DrawPixel(pixels, x, y, col);
 			}
 		}
