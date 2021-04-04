@@ -178,10 +178,46 @@ void DrawLine(global Color *pixels, global Vertex *a, global Vertex *b)
 	}
 }
 
-// Taken from -> https://www.scratchapixel.com/lessons/3d-basic-rendering/rasterization-practical-implementation/rasterization-stage
-// With some chedder from -> http://www.jeffreythompson.org/collision-detection/tri-point.php
-float TriangleArea(float x1, float y1, float x2, float y2, float x3, float y3)
-{ return Abs((x1 - x2) * (y3 - y2) - (x3 - x2) * (y1 - y2)); }
+// Read dis -> http://www.sunshine2k.de/coding/java/TriangleRasterization/TriangleRasterization.html#algo2
+void FillBottomFlatTriangle(global Color *pixels, Vertex a, Vertex b, Vertex c)
+{
+	// Calculate inverted slope
+	float is1 = (b.X - a.X) / (b.Y - a.Y);
+	float is2 = (c.X - a.X) / (c.Y - a.Y);
+	
+	// Calculate current
+	float cx1 = a.X;
+	float cx2 = a.X;
+	
+	for (uint y = a.Y; y <= b.Y; y++)
+	{
+		for (int x = cx1; x < cx2; x++)
+			DrawPixel(pixels, x, y, 0xFFFFF);
+		cx1 += is1;
+		cx2 += is2;
+	}
+}
+
+void FillTopFlatTriangle(global Color *pixels, Vertex a, Vertex b, Vertex c)
+{
+	// Calculate inverted slope
+	float is1 = (c.X - a.X) / (c.Y - a.Y);
+	float is2 = (c.X - b.X) / (c.Y - b.Y);
+	
+	// Calculate current
+	float cx1 = c.X;
+	float cx2 = c.X;
+	
+	for (uint y = a.Y; y <= b.Y; y++)
+	{
+		for (int x = cx1; x < cx2; x++)
+			DrawPixel(pixels, x, y, 0xFFFFF);
+		cx1 += is1;
+		cx2 += is2;
+	}
+}
+
+#define Swap(x, y) { tmp = x; x = y; y = tmp; }
 
 kernel void Draw(global Color *pixels, global Vertex *verts, global Indice *indices)
 {
@@ -191,40 +227,28 @@ kernel void Draw(global Color *pixels, global Vertex *verts, global Indice *indi
 		*b = &verts[indices[id * 3 + 1]],
 		*c = &verts[indices[id * 3 + 2]];
 	
-	uint minX = Min(a->X, Min(b->X, c->X));
-	uint maxX = Max(a->X, Max(b->X, c->X));
+	global Vertex *tmp;
+	if (a->Y > b->Y)
+		Swap(a, b);
+	if (a->Y > c->Y)
+		Swap(a, c);
+	if (b->Y > c->Y)
+		Swap(b, c);
 	
-	uint minY = Min(a->Y, Min(b->Y, c->Y));
-	uint maxY = Max(a->Y, Max(b->Y, c->Y));
-	
-	float tdab = Dist(a->X, a->Y, b->X, b->Y);
-	float tdbc = Dist(b->X, b->Y, c->X, c->Y);
-	float tdca = Dist(c->X, c->Y, a->X, a->Y);
-	
-	float area = Abs(((float)b->X - (float)a->X) * ((float)c->Y - (float)a->Y) - ((float)c->X -(float)a->X) * ((float)b->Y - (float)a->Y));
-	for (uint y = minY; y <= maxY; y++)
-		for (uint x = minX; x <= maxX; x++)
-		{
-			float areaC = TriangleArea(a->X, a->Y, x, y, b->X, b->Y);
-			float areaA = TriangleArea(b->X, b->Y, x, y, c->X, c->Y);
-			float areaB = TriangleArea(c->X, c->Y, x, y, a->X, a->Y);
-
-			if (areaA + areaB + areaC == area)
-			{
-				areaA /= area;
-				areaB /= area;
-				areaC /= area;
-				
-				float red   = areaA * Redf  (a->Color) + areaB * Redf  (b->Color) + areaC * Redf  (c->Color);
-				float green = areaA * Greenf(a->Color) + areaB * Greenf(b->Color) + areaC * Greenf(c->Color);
-				float blue  = areaA * Bluef (a->Color) + areaB * Bluef (b->Color) + areaC * Bluef (c->Color);
-				DrawPixel(pixels, x, y, RGBf(red, green, blue));
-			}
-		}
-	
-	DrawLine(pixels, a, b);
-	DrawLine(pixels, b, c);
-	DrawLine(pixels, c, a);
+	if (b->Y == c->Y)
+		FillBottomFlatTriangle(pixels, *a, *b, *c);
+	else if (a->Y == b->Y)
+		FillTopFlatTriangle(pixels, *a, *b, *c);
+	else
+	{
+		// Cut the triangle in half (totally not torture)
+		Vertex d = {
+			a->X + ((float)(b->Y - a->Y) / (float)(c->Y - a->Y)) * (c->X - a->X),
+			b->Y,
+		};
+		FillBottomFlatTriangle(pixels, *a, *b, d);
+		FillTopFlatTriangle(pixels, *b, d, *c);
+	}
 }
 
 kernel void Clear(global Color *pixels, uint col)

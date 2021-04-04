@@ -18,6 +18,7 @@ namespace Kydo
 		cl::Kernel drawKernel;
 		cl::Buffer vertMem;
 		cl::Buffer indiceMem;
+		cl::Buffer calculatedMem;
 
 		bool alive = true;
 		Window *wnd;

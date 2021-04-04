@@ -118,6 +118,15 @@ namespace Kydo
 		BitBlt(dc, 0, 0, width, height, bmpDc, 0, 0, SRCCOPY);
 	}
 
+	// Benchmark function (ms)
+	static double GetTime()
+	{
+		LARGE_INTEGER t, f;
+		QueryPerformanceCounter(&t);
+		QueryPerformanceFrequency(&f);
+		return ((double)t.QuadPart / (double)f.QuadPart) * 1000;
+	}
+
 	void Window::Render(const std::unique_ptr<Renderer> &renderer)
 	{
 		if (!alive)
@@ -125,7 +134,14 @@ namespace Kydo
 
 		CLRenderer *clRenderer = (CLRenderer *)renderer.get();
 		if (clRenderer->IsDrawing())
+		{
+			using namespace std::chrono;
+			double beg = GetTime();
 			clRenderer->Draw();
+			double end = GetTime();
+			totalRenders++;
+			totalRenderTime += end - beg;
+		}
 		Render();
 	}
 
@@ -136,6 +152,8 @@ namespace Kydo
 			ReleaseDC(handle, dc);
 			DestroyWindow(handle);
 			UnregisterClassW(className, module);
+
+			printf("Render time (average) is %fms\n", totalRenderTime / totalRenders);
 
 			destroyed = true;
 		}
