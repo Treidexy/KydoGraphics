@@ -42,13 +42,13 @@ static uchar Lerp(float x, float y, float t)
 // #define RGB(r, g, b) (r << 16 | g << 8 | b << 0)
 
 static uint Red(uint x)
-{ return x << 16 & 0xFF; }
+{ return x >> 16 & 0xFF; }
 
 static uint Green(uint x)
-{ return x << 8 & 0xFF; }
+{ return x >> 8 & 0xFF; }
 
 static uint Blue(uint x)
-{ return x << 0 & 0xFF; }
+{ return x >> 0 & 0xFF; }
 
 
 static float Redf(uint x)
@@ -62,9 +62,9 @@ static float Bluef(uint x)
 
 
 static uint RGB(uchar r, uchar g, uchar b)
-{ return (r << 16) | (g << 8) | (b << 0); }
+{ return (((uint)r) << 16) | (((uint)g) << 8) | (((uint)b) << 0); }
 
-static uint RGBf(uchar r, uchar g, uchar b)
+static uint RGBf(float r, float g, float b)
 { return RGB(r * 255, g * 255, b * 255); }
 
 static uint Blend(uint x, uint y, float t)
@@ -114,10 +114,12 @@ static void DrawVertex(global uint *pixels, Vertex *vert)
 // Taken from -> https://github.com/tuliosouza99/rasterization
 void DrawLine(global uint *pixels, global Vertex *a, global Vertex *b)
 {
-	int dx, dy, d, incrE, incrNe, step;
+	int dx, dy, d, incrE, incrNe;
 	Vertex newVert = *a;
-	float finalStep = Dist(a->X, a->Y, b->X, b->Y);
-	step = 0;
+	dx = Abs(a->X - b->X);
+	dy = Abs(a->Y - b->Y);
+	float finalStep = Sqrt(dx * dx + dy * dy);
+	float step = 0;
 
 	DrawVertex(pixels, &newVert);
 	if (dx >= dy)
@@ -144,7 +146,7 @@ void DrawLine(global uint *pixels, global Vertex *a, global Vertex *b)
 			else
 				newVert.X--;
 
-			newVert.Color = Blend(a->Color, b->Color, (float)step / (float)finalStep);
+			newVert.Color = Blend(a->Color, b->Color, step / finalStep);
 			DrawVertex(pixels, &newVert);
 			step++;
 		}
@@ -173,7 +175,7 @@ void DrawLine(global uint *pixels, global Vertex *a, global Vertex *b)
 			else
 				newVert.Y--;
 
-			newVert.Color = Blend(a->Color, b->Color, (float)step / (float)finalStep);
+			newVert.Color = Blend(a->Color, b->Color, step / finalStep);
 			DrawVertex(pixels, &newVert);
 			step++;
 		}
@@ -216,13 +218,13 @@ kernel void Draw(global uint *pixels, global Triangle *tris, uint titleBarHeight
 				float red   = areaA * Redf  (a->Color) + areaB * Redf  (b->Color) + areaC * Redf  (c->Color);
 				float green = areaA * Greenf(a->Color) + areaB * Greenf(b->Color) + areaC * Greenf(c->Color);
 				float blue  = areaA * Bluef (a->Color) + areaB * Bluef (b->Color) + areaC * Bluef (c->Color);
-				DrawPixel(pixels, x, y, RGB(red, green, blue));
+				DrawPixel(pixels, x, y, RGBf(red, green, blue));
 			}
 		}
 	
-	DrawLine(pixels, a, b);
-	DrawLine(pixels, b, c);
-	DrawLine(pixels, c, a);
+	// DrawLine(pixels, a, b);
+	// DrawLine(pixels, b, c);
+	// DrawLine(pixels, c, a);
 }
 
 kernel void Clear(global uint *pixels, uint col)
