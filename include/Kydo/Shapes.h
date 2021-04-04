@@ -4,6 +4,7 @@
 
 namespace Kydo
 {
+	using Color = COLORREF;
 	using Indice = UINT;
 
 	struct Vertex

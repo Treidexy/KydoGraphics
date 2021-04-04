@@ -7,6 +7,87 @@
 #define PI 3.1415926535f
 #define TWO_PI PI * 2
 
+using uint = UINT;
+using namespace Kydo;
+
+#define SAFE 1
+#define Swap(x, y) { tmp = x; x = y; y = tmp; }
+
+void DrawPixel(Color *pixels, uint x, uint y, Color col)
+{
+	#if SAFE
+	if (x < 512 && y < 512)
+	#endif
+		pixels[x + y * 512] = col;
+}
+
+void DrawBottom(Color *pixels, Vertex a, Vertex b, Vertex c)
+{
+	float is1 = (float)(int)(b.X - a.X) / (float)(int)(b.Y - a.Y);
+	float is2 = (float)(int)(c.X - a.X) / (float)(int)(c.Y - a.Y);
+
+	float cx1 = a.X;
+	float cx2 = a.X;
+
+	for (uint y = a.Y; y <= b.Y; y++)
+	{
+		for (int x = std::min(cx1, cx2), end = std::max(cx1, cx2); x <= end; x++)
+			DrawPixel(pixels, x, y, 0xFFFFFF);
+		cx1 += is1;
+		cx2 += is2;
+	}
+}
+
+void DrawTop(Color *pixels, Vertex a, Vertex b, Vertex c)
+{
+	// Calculate inverted slope
+	float is1 = (float)(int)(c.X - a.X) / (float)(int)(c.Y - a.Y);
+	float is2 = (float)(int)(c.X - b.X) / (float)(int)(c.Y - b.Y);
+
+	// Calculate current
+	float cx1 = c.X;
+	float cx2 = c.X;
+
+	for (uint y = c.Y; y > a.Y; y--)
+	{
+		for (int x = std::min(cx1, cx2), end = std::max(cx1, cx2); x <= end; x++)
+			DrawPixel(pixels, x, y, 0xFFFFFF);
+		cx1 -= is1;
+		cx2 -= is2;
+	}
+}
+
+void Draw(uint id, Color *pixels, std::vector<Vertex> verts, std::vector<Indice> indices)
+{
+	Vertex
+		*a = &verts[indices[id * 3 + 0]],
+		*b = &verts[indices[id * 3 + 1]],
+		*c = &verts[indices[id * 3 + 2]];
+
+	Vertex *tmp;
+	if (a->Y > b->Y)
+		Swap(a, b);
+	if (a->Y > c->Y)
+		Swap(a, c);
+	if (b->Y > c->Y)
+		Swap(b, c);
+
+	if (b->Y == c->Y)
+		DrawBottom(pixels, *a, *b, *c);
+	else if (a->Y == b->Y)
+		DrawTop(pixels, *a, *b, *c);
+	else
+	{
+		// Cut the triangle in half (totally not torture)
+		Vertex d = {
+			a->X + ((float)(b->Y - a->Y) / (float)(c->Y - a->Y)) * (c->X - a->X),
+			b->Y,
+		};
+		DrawBottom(pixels, *a, *b, d);
+		DrawTop(pixels, *b, d, *c);
+	}
+}
+
 int main()
 {
 	{
@@ -25,8 +106,6 @@ int main()
 		auto renderer = Kydo::Renderer::Create(wnd, src);
 		if (renderer->IsAlive())
 		{
-			wnd.Clear(renderer);
-
 			float rad = 128;
 			float rot = 0;
 			std::vector<Kydo::Vertex> verts = {
@@ -45,19 +124,21 @@ int main()
 			wnd.Show();
 			while (wnd.IsAlive() && renderer->IsAlive())
 			{
-				rot += PI / 180;
-				for (size_t i = 0; i < verts.size(); i++)
-				{
-					verts[i].X = sinf(rot + (i * TWO_PI / verts.size())) * rad + 256;
-					verts[i].Y = cosf(rot + (i * TWO_PI / verts.size())) * rad + 256;
-				}
+				//rot += PI / 180;
+				//for (size_t i = 0; i < verts.size(); i++)
+				//{
+				//	verts[i].X = sinf(rot + (i * TWO_PI / verts.size())) * rad + 256;
+				//	verts[i].Y = cosf(rot + (i * TWO_PI / verts.size())) * rad + 256;
+				//}
 
 				wnd.Update();
 				wnd.Clear(renderer);
-				renderer->Render(verts, indices);
-				wnd.Render(renderer);
-				//using namespace std::chrono_literals;
-				//std::this_thread::sleep_for(1ms);
+				//renderer->Render(verts, indices);
+				Draw(0, wnd.Pixels, verts, indices);
+				Draw(1, wnd.Pixels, verts, indices);
+				wnd.Render();
+				using namespace std::chrono_literals;
+				std::this_thread::sleep_for(50ms);
 			}
 			wnd.Destroy();
 		}

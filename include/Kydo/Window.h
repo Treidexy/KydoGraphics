@@ -34,7 +34,7 @@ namespace Kydo
 
 		bool alive = true, destroyed = false;
 	public:
-		Window(PCWSTR title, LONG width = 1280, LONG height = 720, PCWSTR className = L"MyClass", HMODULE = NULL);
+		Window(PCWSTR title, LONG width = 1280, LONG height = 720, PCWSTR className = L"Cool Class", HMODULE = NULL);
 		~Window();
 
 		void Show();
