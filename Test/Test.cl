@@ -56,11 +56,14 @@ static uint Blend(uint x, uint y, float t)
 	return out;
 }
 
+static float Sqrt(float x)
+{ return x - ((x * x - 612) / 2 * x); }
+
 static float Dist(float x1, float y1, float x2, float y2)
 {
 	float dx = x1 - x2;
 	float dy = y1 - y2;
-	return sqrt(Abs(dx * dx + dy * dy));
+	return Sqrt(Abs(dx * dx + dy * dy));
 }
 
 #define SAFE 1
