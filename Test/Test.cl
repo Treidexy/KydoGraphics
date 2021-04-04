@@ -36,27 +36,58 @@ static float Abs(float x)
 static uchar Lerp(float x, float y, float t)
 { return x + t * (y - x); }
 
+// #define Red(x) (x << 16 & 0xFF)
+// #define Green(x) (x << 8 & 0xFF)
+// #define Blue(x) (x << 0 & 0xFF)
+// #define RGB(r, g, b) (r << 16 | g << 8 | b << 0)
+
+static uint Red(uint x)
+{ return x << 16 & 0xFF; }
+
+static uint Green(uint x)
+{ return x << 8 & 0xFF; }
+
+static uint Blue(uint x)
+{ return x << 0 & 0xFF; }
+
+
+static float Redf(uint x)
+{ return Red(x) / 255; }
+
+static float Greenf(uint x)
+{ return Green(x) / 255; }
+
+static float Bluef(uint x)
+{ return Blue(x) / 255; }
+
+
+static uint RGB(uchar r, uchar g, uchar b)
+{ return (r << 16) | (g << 8) | (b << 0); }
+
+static uint RGBf(uchar r, uchar g, uchar b)
+{ return RGB(r * 255, g * 255, b * 255); }
+
 static uint Blend(uint x, uint y, float t)
 {
 	uint out = 0;
 	uint t0, t1;
 	
-	t0 = x >> 16 & 0xFF;
-	t1 = y >> 16 & 0xFF;
+	t0 = Red(x);
+	t1 = Red(y);
 	out |= Lerp(t0, t1, t) << 16;
 	
-	t0 = x >> 8 & 0xFF;
-	t1 = y >> 8 & 0xFF;
+	t0 = Green(x);
+	t1 = Green(y);
 	out |= Lerp(t0, t1, t) << 8;
 	
-	t0 = x >> 0 & 0xFF;
-	t1 = y >> 0 & 0xFF;
+	t0 = Blue(x);
+	t1 = Blue(y);
 	out |= Lerp(t0, t1, t) << 0;
 	
 	return out;
 }
 
-#define Sqrt(x) sqrt(x)
+#define Sqrt(x) sqrt((float)(x))
 
 static float Dist(float x1, float y1, float x2, float y2)
 {
@@ -85,9 +116,6 @@ void DrawLine(global uint *pixels, global Vertex *a, global Vertex *b)
 {
 	int dx, dy, d, incrE, incrNe, step;
 	Vertex newVert = *a;
-	dx = Abs((int)(b->X - a->X));
-	dy = Abs((int)(b->Y - a->Y));
-	
 	float finalStep = Dist(a->X, a->Y, b->X, b->Y);
 	step = 0;
 
@@ -171,7 +199,7 @@ kernel void Draw(global uint *pixels, global Triangle *tris, uint titleBarHeight
 	float tdbc = Dist(b->X, b->Y, c->X, c->Y);
 	float tdca = Dist(c->X, c->Y, a->X, a->Y);
 	
-	float o = Abs(((float)b->X - (float)a->X) * ((float)c->Y - (float)a->Y) - ((float)c->X -(float)a->X) * ((float)b->Y - (float)a->Y));
+	float area = Abs(((float)b->X - (float)a->X) * ((float)c->Y - (float)a->Y) - ((float)c->X -(float)a->X) * ((float)b->Y - (float)a->Y));
 	for (uint y = minY; y <= maxY; y++)
 		for (uint x = minX; x <= maxX; x++)
 		{
@@ -179,22 +207,16 @@ kernel void Draw(global uint *pixels, global Triangle *tris, uint titleBarHeight
 			float areaA = TriangleArea(b->X, b->Y, x, y, c->X, c->Y);
 			float areaB = TriangleArea(c->X, c->Y, x, y, a->X, a->Y);
 
-			if (areaA + areaB + areaC == o)
+			if (areaA + areaB + areaC == area)
 			{
-				float min = Min(areaA, Min(areaB, areaC));
+				areaA /= area;
+				areaB /= area;
+				areaC /= area;
 				
-				float tda = Dist(a->X, a->Y, x, y);
-				float tdb = Dist(b->X, b->Y, x, y);
-				float tdc = Dist(c->X, c->Y, x, y);
-				
-				uint col;
-				if (min == areaA)
-					col = Blend(a->Color, Blend(b->Color, c->Color, tdb / tdbc), Sqrt(tda * tda + tdab * tdca));
-				else if (min == areaB)
-					col = Blend(b->Color, Blend(c->Color, a->Color, tdc / tdbc), Sqrt(tdb * tdb + tdab * tdbc));
-				else if (min == areaC)
-					col = Blend(c->Color, Blend(a->Color, b->Color, tda / tdab), Sqrt(tdc * tdc + tdbc * tdca));
-				DrawPixel(pixels, x, y, col);
+				float red   = areaA * Redf  (a->Color) + areaB * Redf  (b->Color) + areaC * Redf  (c->Color);
+				float green = areaA * Greenf(a->Color) + areaB * Greenf(b->Color) + areaC * Greenf(c->Color);
+				float blue  = areaA * Bluef (a->Color) + areaB * Bluef (b->Color) + areaC * Bluef (c->Color);
+				DrawPixel(pixels, x, y, RGB(red, green, blue));
 			}
 		}
 	
