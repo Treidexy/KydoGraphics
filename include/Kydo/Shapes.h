@@ -7,12 +7,7 @@ namespace Kydo
 	struct Vertex
 	{
 		UINT X, Y;
-		COLORREF Color = 0x00FF00;
-	};
-
-	struct Triangle
-	{
-		Vertex Vertices[3];
+		COLORREF Color = 0xFFFFFF;
 	};
 
 	struct Rect

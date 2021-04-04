@@ -4,8 +4,6 @@
 
 namespace Kydo
 {
-	inline UINT titleBarHeight = GetSystemMetrics(SM_CYCAPTION);
-
 	inline const char *clGetErrorString(cl_int ec);
 	inline bool CheckEc(cl_int ec, bool &alive, int ln)
 	{
@@ -58,7 +56,6 @@ namespace Kydo
 		ec = clearKernel.setArg(0, pixelMem); CHECK_EC(ec);
 		drawKernel = cl::Kernel(prog, "Draw", &ec); CHECK_EC(ec);
 		ec = drawKernel.setArg(0, pixelMem); CHECK_EC(ec);
-		ec = drawKernel.setArg(2, titleBarHeight); CHECK_EC(ec);
 	}
 
 	CLRenderer::~CLRenderer()
@@ -77,29 +74,38 @@ namespace Kydo
 
 	void CLRenderer::Draw()
 	{
-		if (tris.empty())
+		if (verts.empty())
 			return;
 
-		cl_int ec;
-		triMem = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, tris.size() * sizeof(Triangle), tris.data(), &ec); CHECK_EC(ec);
-		ec = drawKernel.setArg(1, triMem); CHECK_EC(ec);
-		
-		ec = q.enqueueNDRangeKernel(drawKernel, cl::NullRange, cl::NDRange(tris.size())); CHECK_EC(ec);
-		ec = q.flush(); CHECK_EC(ec);
-		ec = q.finish(); CHECK_EC(ec);
+		for (size_t i = 0; i < verts.size(); i++)
+		{
+			cl_int ec;
+			vertMem = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, verts[i].size() * sizeof(Vertex), verts[i].data(), &ec); CHECK_EC(ec);
+			indiceMem = cl::Buffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, indices[i].size() * sizeof(UINT), indices[i].data(), &ec); CHECK_EC(ec);
+			ec = drawKernel.setArg(1, vertMem); CHECK_EC(ec);
+			ec = drawKernel.setArg(2, indiceMem); CHECK_EC(ec);
 
-		tris.clear();
+			ec = q.enqueueNDRangeKernel(drawKernel, cl::NullRange, cl::NDRange(indices[i].size() / 3)); CHECK_EC(ec);
+			ec = q.flush(); CHECK_EC(ec);
+			ec = q.finish(); CHECK_EC(ec);
+		}
+
+		verts.clear();
+		indices.clear();
 	}
 
-	void CLRenderer::Render(const Triangle &tri)
-	{ tris.push_back(tri); }
+	void CLRenderer::Render(std::vector<Vertex> verts, std::vector<UINT> indices)
+	{
+		this->verts.push_back(verts);
+		this->indices.push_back(indices);
+	}
 
 
 	bool CLRenderer::IsAlive()
 	{ return alive; }
 
 	bool CLRenderer::IsDrawing()
-	{ return !tris.empty(); }
+	{ return !verts.empty(); }
 
 	inline const char *clGetErrorString(cl_int ec)
 	{

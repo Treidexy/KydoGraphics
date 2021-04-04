@@ -1,6 +1,5 @@
 #define SAFE 1
 
-typedef struct Triangle Triangle;
 typedef struct Vertex Vertex;
 typedef struct Rect Rect;
 
@@ -8,11 +7,6 @@ struct Vertex
 {
 	uint X, Y;
 	uint Color;
-};
-
-struct Triangle
-{
-	Vertex Vertices[3];
 };
 
 struct Rect
@@ -187,10 +181,13 @@ void DrawLine(global uint *pixels, global Vertex *a, global Vertex *b)
 float TriangleArea(float x1, float y1, float x2, float y2, float x3, float y3)
 { return Abs((x1 - x2) * (y3 - y2) - (x3 - x2) * (y1 - y2)); }
 
-kernel void Draw(global uint *pixels, global Triangle *tris, uint titleBarHeight)
+kernel void Draw(global uint *pixels, global Vertex *verts, global uint *indices)
 {
 	uint id = get_global_id(0);
-	global Vertex *a = &tris[id].Vertices[0], *b = &tris[id].Vertices[1], *c = &tris[id].Vertices[2];
+	global Vertex
+		*a = &verts[indices[id * 3 + 0]],
+		*b = &verts[indices[id * 3 + 1]],
+		*c = &verts[indices[id * 3 + 2]];
 	
 	uint minX = Min(a->X, Min(b->X, c->X));
 	uint maxX = Max(a->X, Max(b->X, c->X));

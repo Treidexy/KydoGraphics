@@ -22,6 +22,16 @@ namespace Kydo
 			PostQuitMessage(0);
 			return 0;
 
+		case WM_PAINT:
+			if (Instance->pixels)
+			{
+				PAINTSTRUCT paint;
+				HDC dc = BeginPaint(wnd, &paint);
+				BitBlt(dc, 0, 0, Instance->width, Instance->height, Instance->bmpDc, 0, 0, SRCCOPY);
+				EndPaint(wnd, &paint);
+			}
+			return 0;
+
 		default:
 			return DefWindowProcW(wnd, msg, wParam, lParam);
 		}

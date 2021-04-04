@@ -2,6 +2,7 @@
 
 #include <string>
 #include <memory>
+#include <vector>
 #include <string_view>
 #include "Kydo/Window.h"
 #include "Kydo/Shapes.h"
@@ -14,7 +15,7 @@ namespace Kydo
 		Renderer() = default;
 	public:
 		virtual ~Renderer() = default;
-		virtual void Render(const Triangle &) = NULL;
+		virtual void Render(std::vector<Vertex> verts, std::vector<UINT> indices) = NULL;
 
 		virtual bool IsAlive() = NULL;
 
