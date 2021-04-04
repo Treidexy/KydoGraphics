@@ -82,7 +82,7 @@ void Draw(uint id, Color *pixels, std::vector<Vertex> verts, std::vector<Indice>
 	{
 		// Cut the triangle in half (totally not torture)
 		Vertex d = {
-			a->X + ((float)(b->Y - a->Y) / (float)(c->Y - a->Y)) * (c->X - a->X),
+			a->X + ((float)(int)(b->Y - a->Y) / (float)(int)(c->Y - a->Y)) * (int)(c->X - a->X),
 			b->Y,
 		};
 		DrawBottom(pixels, *a, *b, d);
@@ -126,16 +126,19 @@ int main()
 			wnd.Show();
 			while (wnd.IsAlive() && renderer->IsAlive())
 			{
-				//rot += PI / 180;
-				//for (size_t i = 0; i < verts.size(); i++)
-				//{
-				//	verts[i].X = sinf(rot + (i * TWO_PI / verts.size())) * rad + 256;
-				//	verts[i].Y = cosf(rot + (i * TWO_PI / verts.size())) * rad + 256;
-				//}
+				rot += PI / 180;
+				rot = std::fmodf(rot, PI);
+				for (size_t i = 0; i < verts.size(); i++)
+				{
+					verts[i].X = sinf(rot + (i * TWO_PI / verts.size())) * rad + 256;
+					verts[i].Y = cosf(rot + (i * TWO_PI / verts.size())) * rad + 256;
+				}
 
 				wnd.Update();
 				wnd.Clear(renderer);
 				renderer->Render(verts, indices);
+				//Draw(0, wnd.Pixels, verts, indices);
+				//Draw(1, wnd.Pixels, verts, indices);
 				wnd.Render(renderer);
 				using namespace std::chrono_literals;
 				std::this_thread::sleep_for(50ms);

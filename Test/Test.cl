@@ -191,7 +191,7 @@ void DrawBottom(global Color *pixels, Vertex a, Vertex b, Vertex c)
 
 	for (uint y = a.Y; y <= b.Y; y++)
 	{
-		for (uint x = Min(cx1, cx2), end = Max(cx1, cx2); x <= end; x++)
+		for (uint x = Min(cx1, cx2), end = Max(cx1, cx2); x < end; x++)
 			DrawPixel(pixels, x, y, 0xFFFFFF);
 		cx1 += is1;
 		cx2 += is2;
@@ -210,7 +210,7 @@ void DrawTop(global Color *pixels, Vertex a, Vertex b, Vertex c)
 
 	for (uint y = c.Y; y > a.Y; y--)
 	{
-		for (uint x = Min(cx1, cx2), end = Max(cx1, cx2); x <= end; x++)
+		for (uint x = Min(cx1, cx2), end = Max(cx1, cx2); x < end; x++)
 			DrawPixel(pixels, x, y, 0xFFFFFF);
 		cx1 -= is1;
 		cx2 -= is2;
@@ -243,7 +243,7 @@ kernel void Draw(global Color *pixels, global Vertex *verts, global Indice *indi
 	{
 		// Cut the triangle in half (totally not torture)
 		Vertex d = {
-			a->X + ((float)(b->Y - a->Y) / (float)(c->Y - a->Y)) * (c->X - a->X),
+			a->X + ((float)(int)(b->Y - a->Y) / (float)(int)(c->Y - a->Y)) * (int)(c->X - a->X),
 			b->Y,
 		};
 		DrawBottom(pixels, *a, *b, d);
