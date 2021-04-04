@@ -179,41 +179,41 @@ void DrawLine(global Color *pixels, global Vertex *a, global Vertex *b)
 }
 
 // Read dis -> http://www.sunshine2k.de/coding/java/TriangleRasterization/TriangleRasterization.html#algo2
-void FillBottomFlatTriangle(global Color *pixels, Vertex a, Vertex b, Vertex c)
+void DrawBottom(global Color *pixels, Vertex a, Vertex b, Vertex c)
 {
 	// Calculate inverted slope
-	float is1 = (b.X - a.X) / (b.Y - a.Y);
-	float is2 = (c.X - a.X) / (c.Y - a.Y);
-	
-	// Calculate current
+	float is1 = (float)(int)(b.X - a.X) / (float)(int)(b.Y - a.Y);
+	float is2 = (float)(int)(c.X - a.X) / (float)(int)(c.Y - a.Y);
+
+	// Calculate current x
 	float cx1 = a.X;
 	float cx2 = a.X;
-	
+
 	for (uint y = a.Y; y <= b.Y; y++)
 	{
-		for (int x = cx1; x < cx2; x++)
-			DrawPixel(pixels, x, y, 0xFFFFF);
+		for (uint x = Min(cx1, cx2), end = Max(cx1, cx2); x <= end; x++)
+			DrawPixel(pixels, x, y, 0xFFFFFF);
 		cx1 += is1;
 		cx2 += is2;
 	}
 }
 
-void FillTopFlatTriangle(global Color *pixels, Vertex a, Vertex b, Vertex c)
+void DrawTop(global Color *pixels, Vertex a, Vertex b, Vertex c)
 {
 	// Calculate inverted slope
-	float is1 = (c.X - a.X) / (c.Y - a.Y);
-	float is2 = (c.X - b.X) / (c.Y - b.Y);
-	
-	// Calculate current
+	float is1 = (float)(int)(c.X - a.X) / (float)(int)(c.Y - a.Y);
+	float is2 = (float)(int)(c.X - b.X) / (float)(int)(c.Y - b.Y);
+
+	// Calculate current x
 	float cx1 = c.X;
 	float cx2 = c.X;
-	
-	for (uint y = a.Y; y <= b.Y; y++)
+
+	for (uint y = c.Y; y > a.Y; y--)
 	{
-		for (int x = cx1; x < cx2; x++)
-			DrawPixel(pixels, x, y, 0xFFFFF);
-		cx1 += is1;
-		cx2 += is2;
+		for (uint x = Min(cx1, cx2), end = Max(cx1, cx2); x <= end; x++)
+			DrawPixel(pixels, x, y, 0xFFFFFF);
+		cx1 -= is1;
+		cx2 -= is2;
 	}
 }
 
@@ -236,9 +236,9 @@ kernel void Draw(global Color *pixels, global Vertex *verts, global Indice *indi
 		Swap(b, c);
 	
 	if (b->Y == c->Y)
-		FillBottomFlatTriangle(pixels, *a, *b, *c);
+		DrawBottom(pixels, *a, *b, *c);
 	else if (a->Y == b->Y)
-		FillTopFlatTriangle(pixels, *a, *b, *c);
+		DrawTop(pixels, *a, *b, *c);
 	else
 	{
 		// Cut the triangle in half (totally not torture)
@@ -246,8 +246,8 @@ kernel void Draw(global Color *pixels, global Vertex *verts, global Indice *indi
 			a->X + ((float)(b->Y - a->Y) / (float)(c->Y - a->Y)) * (c->X - a->X),
 			b->Y,
 		};
-		FillBottomFlatTriangle(pixels, *a, *b, d);
-		FillTopFlatTriangle(pixels, *b, d, *c);
+		DrawBottom(pixels, *a, *b, d);
+		DrawTop(pixels, *b, d, *c);
 	}
 }
 

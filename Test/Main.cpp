@@ -23,9 +23,11 @@ void DrawPixel(Color *pixels, uint x, uint y, Color col)
 
 void DrawBottom(Color *pixels, Vertex a, Vertex b, Vertex c)
 {
+	// Calculate inverted slope
 	float is1 = (float)(int)(b.X - a.X) / (float)(int)(b.Y - a.Y);
 	float is2 = (float)(int)(c.X - a.X) / (float)(int)(c.Y - a.Y);
 
+	// Calculate current x
 	float cx1 = a.X;
 	float cx2 = a.X;
 
@@ -133,10 +135,8 @@ int main()
 
 				wnd.Update();
 				wnd.Clear(renderer);
-				//renderer->Render(verts, indices);
-				Draw(0, wnd.Pixels, verts, indices);
-				Draw(1, wnd.Pixels, verts, indices);
-				wnd.Render();
+				renderer->Render(verts, indices);
+				wnd.Render(renderer);
 				using namespace std::chrono_literals;
 				std::this_thread::sleep_for(50ms);
 			}
