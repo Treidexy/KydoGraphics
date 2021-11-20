@@ -149,11 +149,7 @@ void DrawBottom(global Color *pixels, Vertex a, Vertex b, Vertex c)
 	for (uint y = a.Y; y <= b.Y; y++)
 	{
 		for (uint start = Min(cx1, cx2), x = start, end = Max(cx1, cx2); x <= end; x++)
-		{
-			Color xCol = Blend(a.Color, b.Color, (x - start) / (end - start));
-			Color col = Blend(c.Color, xCol, (y - c.Y) / (c.Y - a.Y));
-			DrawPixel(pixels, x, y, col);
-		}
+			DrawPixel(pixels, x, y, 0xFFFFFF);
 		cx1 += is1;
 		cx2 += is2;
 	}
@@ -172,11 +168,7 @@ void DrawTop(global Color *pixels, Vertex a, Vertex b, Vertex c)
 	for (uint y = c.Y; y > a.Y; y--)
 	{
 		for (uint start = Min(cx1, cx2), x = start, end = Max(cx1, cx2); x <= end; x++)
-		{
-			Color xCol = Blend(a.Color, b.Color, (x - start) / (end - start));
-			Color col = Blend(c.Color, xCol, (y - c.Y) / (c.Y - a.Y));
-			DrawPixel(pixels, x, y, col);
-		}
+			DrawPixel(pixels, x, y, 0xFFFFFF);
 		cx1 -= is1;
 		cx2 -= is2;
 	}
@@ -192,32 +184,32 @@ kernel void Draw(global Color *pixels, global Vertex *verts, global Indice *indi
 		*b = &verts[indices[id * 3 + 1]],
 		*c = &verts[indices[id * 3 + 2]];
 	
-	// global Vertex *tmp;
-	// if (a->Y > b->Y)
-		// Swap(a, b);
-	// if (a->Y > c->Y)
-		// Swap(a, c);
-	// if (b->Y > c->Y)
-		// Swap(b, c);
+	global Vertex *tmp;
+	if (a->Y > b->Y)
+		Swap(a, b);
+	if (a->Y > c->Y)
+		Swap(a, c);
+	if (b->Y > c->Y)
+		Swap(b, c);
 	
-	// if (b->Y == c->Y)
-		// DrawBottom(pixels, *a, *b, *c);
-	// else if (a->Y == b->Y)
-		// DrawTop(pixels, *a, *b, *c);
-	// else
-	// {
+	if (b->Y == c->Y)
+		DrawBottom(pixels, *a, *b, *c);
+	else if (a->Y == b->Y)
+		DrawTop(pixels, *a, *b, *c);
+	else
+	{
 		// Cut the triangle in half (totally not torture)
-		// Vertex d = {
-			// a->X + ((float)(int)(b->Y - a->Y) / (float)(int)(c->Y - a->Y)) * (int)(c->X - a->X),
-			// b->Y,
-		// };
-		// DrawBottom(pixels, *a, *b, d);
-		// DrawTop(pixels, *b, d, *c);
-	// }
+		Vertex d = {
+			a->X + ((float)(int)(b->Y - a->Y) / (float)(int)(c->Y - a->Y)) * (int)(c->X - a->X),
+			b->Y,
+		};
+		DrawBottom(pixels, *a, *b, d);
+		DrawTop(pixels, *b, d, *c);
+	}
 	
-	DrawLine(pixels, a, b);
-	DrawLine(pixels, b, c);
-	DrawLine(pixels, c, a);
+	// DrawLine(pixels, a, b);
+	// DrawLine(pixels, b, c);
+	// DrawLine(pixels, c, a);
 }
 
 kernel void Clear(global Color *pixels, uint col)

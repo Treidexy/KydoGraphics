@@ -149,6 +149,7 @@ namespace Kydo
 	{
 		if (!destroyed)
 		{
+			alive = false;
 			ReleaseDC(handle, dc);
 			DestroyWindow(handle);
 			UnregisterClassW(className, module);
